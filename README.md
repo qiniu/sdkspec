@@ -10,6 +10,7 @@
 
 ## 生成上传/下载凭证(token)
 
+```
 package qiniu.auth
 
 class PutPolicy {
@@ -30,12 +31,14 @@ class GetPolicy {
 }
 
 func GetPolicy.Token() string
+```
 
 范围：仅在服务端使用
 
 
 ## API请求授权(digestauth)
 
+```
 package qiniu.digestauth
 
 class Client {
@@ -43,12 +46,14 @@ class Client {
 }
 
 func New() Client
+```
 
 范围：仅在服务端使用
 
 
 ## 上传授权(uploadauth)
 
+```
 package qiniu.uploadauth
 
 class Client {
@@ -56,6 +61,7 @@ class Client {
 }
 
 func New(uptoken string) Client
+```
 
 范围：服务端或客户端
 
@@ -68,17 +74,21 @@ func New(uptoken string) Client
 
 ## 存储API(rs)
 
+```
 package qiniu.rs
 
 class Service {
 }
+```
 
 范围：仅在服务端使用
 
 
 ## 文件处理(filop)
 
+```
 package qiniu.fileop
+```
 
 范围：服务端或客户端
 
