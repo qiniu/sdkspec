@@ -10,7 +10,7 @@
 
 ## 生成上传/下载凭证(token)
 
-```
+```{go}
 package qiniu.auth
 
 class PutPolicy {
