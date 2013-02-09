@@ -2,7 +2,7 @@
 
 ## 语言差异性
 
-- 命名风格：不同语言可以有不同的命名风格。本规范主要按类 Golang 风格进行描述。
+- 命名风格：不同语言可以有不同的命名风格。本规范主要按类 Golang 风格进行描述（但不完全是）。
 - 名字空间：有的语言没有 package（namespace），通常通过名字前缀来表达。
 - 构造函数：有的语言没有构造函数，通过 NewXXX 函数来表达。本规范因为按 Golang 风格，构造函数也是用 NewXXX 进行描述。
 - 函数重载：有的语言没有函数重载，通过 XXXYYY 形式命名，其中 XXX 是功能，YYY 是不同重载函数的区分段。支持函数重载的语言没有 YYY 段。
@@ -14,13 +14,13 @@
 package qiniu.auth
 
 class PutPolicy {
-	Scope string // 可以是 bucketName 或者 bucketName:key
-	CallbackUrl string
-	CallbackBodyType string
-	Customer string
-	CsyncOps string
-	Expires int
-	Escape bool
+	scope string // 可以是 bucketName 或者 bucketName:key
+	callbackUrl string
+	callbackBodyType string
+	customer string
+	syncOps string
+	expires int
+	escape bool
 }
 
 func PutPolicy.Token() string
@@ -38,7 +38,7 @@ func GetPolicy.Token() string
 
 ## API请求授权(digestauth)
 
-```
+```{go}
 package qiniu.digestauth
 
 class Client {
@@ -53,7 +53,7 @@ func New() Client
 
 ## 上传授权(uploadauth)
 
-```
+```{go}
 package qiniu.uploadauth
 
 class Client {
@@ -74,7 +74,7 @@ func New(uptoken string) Client
 
 ## 存储API(rs)
 
-```
+```{go}
 package qiniu.rs
 
 class Service {
@@ -86,7 +86,7 @@ class Service {
 
 ## 文件处理(filop)
 
-```
+```{go}
 package qiniu.fileop
 ```
 
