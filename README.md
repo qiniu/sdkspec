@@ -23,14 +23,14 @@ class PutPolicy {
 	escape bool
 }
 
-func PutPolicy.Token() string
+func PutPolicy.token() string
 
 class GetPolicy {
 	scope string // 格式是 domainPattern/keyPattern，没有默认值，用 */* 授权粒度过大，用 */key 比较合适。
 	expires int
 }
 
-func GetPolicy.Token() string
+func GetPolicy.token() string
 ```
 
 范围：仅在服务端使用
