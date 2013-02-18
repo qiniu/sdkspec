@@ -239,7 +239,7 @@ type Service struct {
 
 // 获取文件临时授权下载链接（private, 主要是 saveAs 要用）
 
-func (this *Service) get(entryURI string)
+func (this *Service) get(entryURI string) (url string, err error) { ... }
 
 
 // 文件在线处理并持久化存储
@@ -249,7 +249,7 @@ func (this *Service) SaveAs(entryURISrc, entryURIDest, opStr string)
 
 // 图像在线处理（缩略、裁剪、旋转、转化）后并持久化存储
 
-func (this *Service) ImageMogrifySaveAs(entryURISrc, entryURIDest, mogrifyOptions map[string]string)
+func (this *Service) ImageMogrifySaveAs(entryURISrc, entryURIDest string, mogrifyOptions map[string]string)
 
 
 func New(conn auth.digest.Client) (fop fop.Service) { ... }
