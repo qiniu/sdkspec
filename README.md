@@ -14,7 +14,7 @@
 ```
 package qiniu.conf
 
-var RS_HOST string = "http://rs.qbox.me"
+var RS_HOST string
 
 var ACCESS_KEY string
 var SECRET_KEY string
@@ -29,9 +29,7 @@ var SECRET_KEY string
 package qiniu.auth
 
 class Client {
-    func auth(opts, body) // 可重载
-    func execute(...)
-    func callWith(...)
+    … 
 }
 
 ```
@@ -42,16 +40,14 @@ class Client {
 ## API 请求授权（digestAuth）
 
 ```
-package qiniu.auth.rs
+package qiniu.auth.digest
 
-class rs.Client extends auth.Client {
-
-    func auth(opts, body) // 支持 mac token 的 digest auth 代码
+class digest.Client extends auth.Client {
 
     ...
 }
 
-func New() (conn rs.Client) {}
+func New() (conn digest.Client) {}
 ```
 
 范围：仅在服务端使用
@@ -64,32 +60,11 @@ package qiniu.auth.up
 
 class up.Client extends auth.Client {
 
-    func auth(opts, body) // 支持 upload token 的代码
-
     ...
 
 }
 
 func New(uploadToken string) (conn up.Client) {}
-```
-
-范围：服务端 / 客户端 使用
-
-
-## 下载请求授权（downloadAuth）
-
-```
-package qiniu.auth.dn
-
-class dn.Client extends auth.Client {
-
-    func auth(opts, body) // 支持 download token 的代码
-
-    ...
-}
-
-// downloadToken 允许为空，指下载公有资源
-func New(downloadToken string) (conn dn.Client) { … }
 ```
 
 范围：服务端 / 客户端 使用
@@ -102,25 +77,29 @@ package qiniu.auth
 
 class PutPolicy {
     scope string // 可以是 bucketName 或者 bucketName:key
-    callbackUrl string
-    callbackBodyType string
-    customer string
-    syncOps string
-    expires int
-    escape bool
-
-    // 生成 uploadToken
-    func token() (uploadToken string) { … }
+    expires int64
+    callbackUrl string,
+    callbackBodyType string,
+    customer string,
+    escape bool,
+    asyncOps string
+    returnBody string
 }
+
+// 生成 uploadToken
+
+func (this *PutPolicy) Token() (uploadToken string) { … }
 
 
 class GetPolicy {
     scope string // 格式是 domainPattern/keyPattern，没有默认值，用 */* 授权粒度过大，用 */key 比较合适。
-    expires int
-
-    // 生成 downloadToken
-    func token() (downloadToken string) { … }
+    expires int64
 }
+
+// 生成 downloadToken
+
+func (this *GetPolicy) Token() (downloadToken string) { … }
+
 ```
 
 范围：仅在服务端使用
@@ -137,46 +116,26 @@ class Service {
 
     Host string // 上传地址，一般是 <bucket>.qiniup.com
 
-
-    // 上传一个流，有待补充
-    func putStream()
-
-    // 上传一个文件，有待补充
-    func putFile()
-
-    // 断点续上传，有待补充，这个func可能还需要拆分下
-    func resumablePut()
 }
+
+
+// 上传一个流，有待补充
+
+func (this *Service) Put()
+
+
+// 上传一个文件，有待补充
+
+func (this *Service) PutFile()
+
+
+// 断点续上传，有待补充，这个func可能还需要拆分下
+
+func (this *Service) ResumablePut()
+
 
 func New(conn auth.up.Client, host string) (up up.Service) { … }
 
-```
-
-范围：服务端 / 客户端 均可使用
-
-
-## 下载文件（download）
-
-```
-package qiniu.dn
-
-class Service {
-
-    Conn auth.dn.Client
-
-    Host string // 下载地址，一般是 <bucket>.qiniudn.com
-
-    // 获取下载链接
-    func get(key string) (url string) { … }
-
-    // 下载文件
-    func download(key string) (code int, body []byte, err error) { … }
-
-    // 断点续下载
-    func downloadByRange(key string, firstBytePos, lastBytePos int64) (code int, body []byte, err error) { … }
-}
-
-func New(conn auth.dn.Client, host string) (dn dn.Service) { … }
 ```
 
 范围：服务端 / 客户端 均可使用
@@ -189,31 +148,43 @@ package qiniu.rs
 
 class Service {
 
-    Conn auth.rs.Client
+    Conn auth.digest.Client
 
-    // 查看单个文件信息
-    func Stat(entryURI string)
-
-    // 删除单个文件
-    func Delete(entryURI string)
-
-    // 复制单个文件
-    func Copy(entryURISrc, entryURIDest string)
-
-    // 移动单个文件
-    func Move(entryURISrc, entryURIDest string)
-
-    // 批量操作
-    func BatchStat([entryURI, …])
-
-    func BatchDelete([entryURI, …])
-
-    func BatchCopy([[entryURISrc,entryURIDest], …])
-
-    func BatchMove([[entryURISrc,entryURIDest], …])
 }
 
-func New(conn auth.rs.Client) (rs rs.Service) { … }
+// 查看单个文件信息
+    
+func (this *Service) Stat(entryURI string)
+
+
+// 删除单个文件
+    
+func (this *Service) Delete(entryURI string)
+
+
+// 复制单个文件
+    
+func (this *Service) Copy(entryURISrc, entryURIDest string)
+
+
+// 移动单个文件
+    
+func (this *Service) Move(entryURISrc, entryURIDest string)
+
+
+// 批量操作
+    
+func (this *Service) BatchStat([entryURI, …])
+
+func (this *Service) BatchDelete([entryURI, …])
+
+func (this *Service) BatchCopy([[entryURISrc, entryURIDest], …])
+
+func (this *Service) BatchMove([[entryURISrc, entryURIDest], …])
+
+
+func New(conn auth.digest.Client) (rs rs.Service) { … }
+
 ```
 
 范围：仅在服务端使用
@@ -225,30 +196,36 @@ func New(conn auth.rs.Client) (rs rs.Service) { … }
 package qiniu.fop
 
 
-func ImageInfo(url string) (data JSON) { … }
+func ImageInfo(imageURL string) (data JSON) { … }
 
-func ImageExif(url string) (data JSON) { … }
+func ImageExif(imageURL string) (data JSON) { … }
 
-func ImageMogrifyPreview(srcImageUrl string, mogrifyOptions map[string]string) (previewURL string) { … }
-
+func ImageMogrifyForPreview(imageURL string, mogrifyOptions map[string]string) (previewURL string) { … }
 
 
 class Service {
 
-    Conn auth.rs.Client
-
-    // 获取文件临时授权下载链接（private, 主要是 saveAs 要用）
-    func get(entryURI string)
-
-    // 文件在线处理并持久化存储
-    func SaveAs(entryURISrc, entryURIDest, opStr string)
-
-    // 图像在线处理（缩略、裁剪、旋转、转化）后并持久化存储
-    func ImageMogrifySaveAs(entryURISrc, entryURIDest, mogrifyOptions map[string]string)
+    Conn auth.digest.Client
 
 }
 
-func New(conn auth.rs.Client) (fop fop.Service) { … }
+
+// 获取文件临时授权下载链接（private, 主要是 saveAs 要用）
+
+func (this *Service) get(entryURI string)
+
+
+// 文件在线处理并持久化存储
+
+func (this *Service) SaveAs(entryURISrc, entryURIDest, opStr string)
+
+
+// 图像在线处理（缩略、裁剪、旋转、转化）后并持久化存储
+
+func (this *Service) ImageMogrifySaveAs(entryURISrc, entryURIDest, mogrifyOptions map[string]string)
+
+
+func New(conn auth.digest.Client) (fop fop.Service) { … }
 
 ```
 
