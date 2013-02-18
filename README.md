@@ -11,7 +11,7 @@
 
 ## 服务端配置（conf）
 
-```
+```{go}
 package "qiniu/conf"
 
 var RS_HOST string
@@ -215,7 +215,7 @@ func New(conn auth.digest.Client) (rs rs.Service) { ... }
 范围：仅在服务端使用
 
 
-## 文件处理(fop)
+## 文件处理（fop）
 
 ```{go}
 package "qiniu/fop"
