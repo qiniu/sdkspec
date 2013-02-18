@@ -78,10 +78,10 @@ package qiniu.auth
 class PutPolicy {
     scope string // 可以是 bucketName 或者 bucketName:key
     expires int64
-    callbackUrl string,
-    callbackBodyType string,
-    customer string,
-    escape bool,
+    callbackUrl string
+    callbackBodyType string
+    customer string
+    escape bool
     asyncOps string
     returnBody string
 }
