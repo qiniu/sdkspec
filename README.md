@@ -12,7 +12,7 @@
 ## 服务端配置（conf）
 
 ```
-package qiniu.conf
+package "qiniu/conf"
 
 var RS_HOST string
 
@@ -26,10 +26,13 @@ var SECRET_KEY string
 ## 构造带授权的 HTTP Client（conn）
 
 ```
-package qiniu.auth
+package "qiniu/auth"
 
-class Client {
-    … 
+
+// class auth.Client
+
+type Client struct {
+    …
 }
 
 ```
@@ -40,14 +43,20 @@ class Client {
 ## API 请求授权（digestAuth）
 
 ```
-package qiniu.auth.digest
+package "qiniu/auth/digest"
 
-class digest.Client extends auth.Client {
+
+// class digest.Client extends auth.Client { ... }
+
+type Client struct {
+
+    auth.Client // extends auth.Client
 
     ...
 }
 
-func New() (conn digest.Client) {}
+
+func New() (conn digest.Client) { ... }
 ```
 
 范围：仅在服务端使用
@@ -56,15 +65,20 @@ func New() (conn digest.Client) {}
 ## 上传请求授权（uploadAuth）
 
 ```
-package qiniu.auth.up
+package "qiniu/auth/up"
 
-class up.Client extends auth.Client {
+
+// class up.Client extends auth.Client { ... }
+
+type Client struct {
+
+    auth.Client // extends auth.Client
 
     ...
-
 }
 
-func New(uploadToken string) (conn up.Client) {}
+
+func New(uploadToken string) (conn up.Client) { ... }
 ```
 
 范围：服务端 / 客户端 使用
@@ -73,32 +87,37 @@ func New(uploadToken string) (conn up.Client) {}
 ## 生成上传/下载授权凭证(token)
 
 ```
-package qiniu.auth
+package "qiniu/auth"
 
-class PutPolicy {
-    scope string // 可以是 bucketName 或者 bucketName:key
-    expires int64
-    callbackUrl string
-    callbackBodyType string
-    customer string
-    escape bool
-    asyncOps string
-    returnBody string
+
+// class auth.PutPolicy
+
+type PutPolicy struct {
+    Scope string // 可以是 bucketName 或者 bucketName:key
+    Expires int64
+    CallbackUrl string
+    CallbackBodyType string
+    Customer string
+    Escape bool
+    AsyncOps string
+    ReturnBody string
 }
 
 // 生成 uploadToken
 
-func (this *PutPolicy) Token() (uploadToken string) { … }
+func (this *PutPolicy) Token() (uploadToken string) { ... }
 
 
-class GetPolicy {
-    scope string // 格式是 domainPattern/keyPattern，没有默认值，用 */* 授权粒度过大，用 */key 比较合适。
-    expires int64
+// class auth.GettPolicy
+
+type GetPolicy struct {
+    Scope string // 格式是 domainPattern/keyPattern，没有默认值，用 */* 授权粒度过大，用 */key 比较合适。
+    Expires int64
 }
 
 // 生成 downloadToken
 
-func (this *GetPolicy) Token() (downloadToken string) { … }
+func (this *GetPolicy) Token() (downloadToken string) { ... }
 
 ```
 
@@ -108,9 +127,12 @@ func (this *GetPolicy) Token() (downloadToken string) { … }
 ## 上传文件（upload）
 
 ```
-package qiniu.up
+package "qiniu/up"
 
-class Service {
+
+// class up.Service
+
+type Service struct {
 
     Conn auth.up.Client
 
@@ -134,7 +156,7 @@ func (this *Service) PutFile()
 func (this *Service) ResumablePut()
 
 
-func New(conn auth.up.Client, host string) (up up.Service) { … }
+func New(conn auth.up.Client, host string) (up up.Service) { ... }
 
 ```
 
@@ -144,46 +166,49 @@ func New(conn auth.up.Client, host string) (up up.Service) { … }
 ## 存储API（rs）
 
 ```
-package qiniu.rs
+package "qiniu/rs"
 
-class Service {
+
+// class rs.Service
+
+type Service struct {
 
     Conn auth.digest.Client
 
 }
 
 // 查看单个文件信息
-    
+
 func (this *Service) Stat(entryURI string)
 
 
 // 删除单个文件
-    
+
 func (this *Service) Delete(entryURI string)
 
 
 // 复制单个文件
-    
+
 func (this *Service) Copy(entryURISrc, entryURIDest string)
 
 
 // 移动单个文件
-    
+
 func (this *Service) Move(entryURISrc, entryURIDest string)
 
 
 // 批量操作
-    
-func (this *Service) BatchStat([entryURI, …])
 
-func (this *Service) BatchDelete([entryURI, …])
+func (this *Service) BatchStat([entryURI, ...])
 
-func (this *Service) BatchCopy([[entryURISrc, entryURIDest], …])
+func (this *Service) BatchDelete([entryURI, ...])
 
-func (this *Service) BatchMove([[entryURISrc, entryURIDest], …])
+func (this *Service) BatchCopy([[entryURISrc, entryURIDest], ...])
+
+func (this *Service) BatchMove([[entryURISrc, entryURIDest], ...])
 
 
-func New(conn auth.digest.Client) (rs rs.Service) { … }
+func New(conn auth.digest.Client) (rs rs.Service) { ... }
 
 ```
 
@@ -193,17 +218,19 @@ func New(conn auth.digest.Client) (rs rs.Service) { … }
 ## 文件处理(fop)
 
 ```
-package qiniu.fop
+package "qiniu/fop"
 
 
-func ImageInfo(imageURL string) (data JSON) { … }
+func ImageInfo(imageURL string) (data JSON) { ... }
 
-func ImageExif(imageURL string) (data JSON) { … }
+func ImageExif(imageURL string) (data JSON) { ... }
 
-func ImageMogrifyForPreview(imageURL string, mogrifyOptions map[string]string) (previewURL string) { … }
+func ImageMogrifyForPreview(imageURL string, mogrifyOptions map[string]string) (previewURL string) { ... }
 
 
-class Service {
+// class fop.Service
+
+type Service struct {
 
     Conn auth.digest.Client
 
@@ -225,9 +252,8 @@ func (this *Service) SaveAs(entryURISrc, entryURIDest, opStr string)
 func (this *Service) ImageMogrifySaveAs(entryURISrc, entryURIDest, mogrifyOptions map[string]string)
 
 
-func New(conn auth.digest.Client) (fop fop.Service) { … }
+func New(conn auth.digest.Client) (fop fop.Service) { ... }
 
 ```
 
 范围：服务端
-
