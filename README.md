@@ -25,14 +25,14 @@ var SECRET_KEY string
 
 ## 构造带授权的 HTTP Client（conn）
 
-```
+```{go}
 package "qiniu/auth"
 
 
 // class auth.Client
 
 type Client struct {
-    …
+    ...
 }
 
 ```
@@ -42,7 +42,7 @@ type Client struct {
 
 ## API 请求授权（digestAuth）
 
-```
+```{go}
 package "qiniu/auth/digest"
 
 
@@ -64,7 +64,7 @@ func New() (conn digest.Client) { ... }
 
 ## 上传请求授权（uploadAuth）
 
-```
+```{go}
 package "qiniu/auth/up"
 
 
@@ -86,7 +86,7 @@ func New(uploadToken string) (conn up.Client) { ... }
 
 ## 生成上传/下载授权凭证(token)
 
-```
+```{go}
 package "qiniu/auth"
 
 
@@ -126,7 +126,7 @@ func (this *GetPolicy) Token() (downloadToken string) { ... }
 
 ## 上传文件（upload）
 
-```
+```{go}
 package "qiniu/up"
 
 
@@ -165,7 +165,7 @@ func New(conn auth.up.Client, host string) (up up.Service) { ... }
 
 ## 存储API（rs）
 
-```
+```{go}
 package "qiniu/rs"
 
 
@@ -217,7 +217,7 @@ func New(conn auth.digest.Client) (rs rs.Service) { ... }
 
 ## 文件处理(fop)
 
-```
+```{go}
 package "qiniu/fop"
 
 
