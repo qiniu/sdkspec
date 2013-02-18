@@ -84,7 +84,7 @@ func New(uploadToken string) (conn up.Client) { ... }
 范围：服务端 / 客户端 使用
 
 
-## 生成上传/下载授权凭证(token)
+## 生成上传/下载授权凭证（token）
 
 ```{go}
 package "qiniu/auth"
@@ -124,7 +124,7 @@ func (this *GetPolicy) Token() (downloadToken string) { ... }
 范围：仅在服务端使用
 
 
-## 上传文件（upload）
+## 上传文件（up）
 
 ```{go}
 package "qiniu/up"
