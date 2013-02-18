@@ -56,7 +56,7 @@ type Client struct {
 }
 
 
-func New() (conn digest.Client) { ... }
+func New() (conn Client) { ... }
 ```
 
 范围：仅在服务端使用
@@ -78,7 +78,7 @@ type Client struct {
 }
 
 
-func New(uploadToken string) (conn up.Client) { ... }
+func New(uploadToken string) (conn Client) { ... }
 ```
 
 范围：服务端 / 客户端 使用
@@ -156,7 +156,7 @@ func (this *Service) PutFile()
 func (this *Service) ResumablePut()
 
 
-func New(conn auth.up.Client, host string) (up up.Service) { ... }
+func New(conn auth.up.Client, host string) (up Service) { ... }
 
 ```
 
@@ -208,7 +208,7 @@ func (this *Service) BatchCopy([[entryURISrc, entryURIDest], ...])
 func (this *Service) BatchMove([[entryURISrc, entryURIDest], ...])
 
 
-func New(conn auth.digest.Client) (rs rs.Service) { ... }
+func New(conn auth.digest.Client) (rs Service) { ... }
 
 ```
 
@@ -252,7 +252,7 @@ func (this *Service) SaveAs(entryURISrc, entryURIDest, opStr string)
 func (this *Service) ImageMogrifySaveAs(entryURISrc, entryURIDest string, mogrifyOptions map[string]string)
 
 
-func New(conn auth.digest.Client) (fop fop.Service) { ... }
+func New(conn auth.digest.Client) (fop Service) { ... }
 
 ```
 
