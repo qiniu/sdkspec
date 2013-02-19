@@ -8,51 +8,56 @@
 
 单元测试代码范式如下：
 
-```
+```{ruby}
 
-// 初始化测试环境
+# 初始化测试环境
 
 before :all do
 
-    // 使用测试密钥（AccessKey/SecretKey）接入
+    # 使用测试密钥（AccessKey/SecretKey）接入
     establish_connection
-    
-    // 创建测试Bucket
-    mk_unique_test_bucket 
-    
+
+    # 创建测试Bucket
+    mk_unique_test_bucket
+
 end
 
 
-// 测试指定功能点
+# 测试指定功能点
 
 context :some_feature do
 
-    // YES逻辑断言
+    # YES逻辑断言
     it "should be YES" do
-      // do some thing
+        # do some thing
     end
 
-    // FALSE逻辑断言
+    # FALSE逻辑断言
     it "should be FALSE" do
-      // do some thing
+        # do some thing
     end
 
-    // 异常出错逻辑断言
+    # 异常出错逻辑断言
     it "should be Raise Err" do
-      // do some thing
+        # do some thing
     end
 end
 
 context :yet_another_feature do
-   // ...
+    # ...
 end
 
 
-// 清场
+# 清场
 
 after :all do
+
+    # 删除之前测试用所创建的临时 Bucket
     drop_unique_test_bucket
+
+    # 删除测试过程中所创建的临时文件
     clean_tmpfile
+
 end
 ```
 
