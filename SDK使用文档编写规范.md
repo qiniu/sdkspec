@@ -70,10 +70,10 @@ Others
         - 音频
         - 视频
 
+## 样例参考
 
-样例可以参考：<http://docs.qiniutek.com/v3/sdk/ruby/>
+SDK 文档样例参考：<http://docs.qiniutek.com/v3/sdk/ruby/>
 
+文档源文件参考：<https://github.com/qiniu/ruby-sdk/blob/develop/docs/README.md>
 
-## SDK 文档书写细节（范例）
-
-TODO
+Markdown 源文件参考: <https://raw.github.com/qiniu/ruby-sdk/develop/docs/README.md>
