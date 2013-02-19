@@ -1,5 +1,38 @@
 # SDK 使用文档编写规范
 
+SDK 使用文档位于代码库的 `docs/README.md` ，文档需基于 [Markdown](http://markdown.tw/) 语法格式编写。
+
+开发者可以基于 Github 提供的在线编辑器编写，也可以使用如下 Markdown 编辑器。
+
+## Markdown Editor
+
+Mac
+
+* [Mou](http://mouapp.com/)
+
+Linux
+
+* [ReText](http://sourceforge.net/p/retext/home/ReText/)
+
+Windows
+
+* [MarkdownPad](http://markdownpad.com/)
+* [MarkPad](http://code52.org/DownmarkerWPF/)
+
+Online Tools
+
+* [Markable.in](http://markable.in/)
+* [Dillinger.io](http://dillinger.io/)
+
+Chrome
+
+* [MaDe](https://chrome.google.com/webstore/detail/oknndfeeopgpibecfjljjfanledpbkog) (Chrome)
+
+Others
+
+* [Sublime Text 2](http://www.sublimetext.com/2) + [MarkdownEditing](http://ttscoff.github.com/MarkdownEditing/)
+
+
 ## SDK 文档书写目录结构（范式）
 
 - SDK 简介说明
