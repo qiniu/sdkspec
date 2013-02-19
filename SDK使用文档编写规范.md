@@ -1,40 +1,46 @@
 # SDK 使用文档编写规范
 
-## SDK 使用文档目录结构参考
+## SDK 文档书写目录结构（范式）
 
-- [安装](#Installation)
-- [接入](#turn-on)
-    - [配置密钥（AccessKey / SecretKey）](#establish_connection!)
-- [使用](#Usage)
-    - [文件上传](#upload)
-        - [生成上传授权凭证（uploadToken）](#generate-upload-token)
-        - [服务端上传文件](#upload-server-side)
-            - [开启断点续上传](#resumable-upload)
-        - [iOS / Android / Web 端直传文件说明](#upload-client-side)
-    - [文件下载](#download)
-        - [公有资源下载](#download-public-files)
-        - [私有资源下载](#download-private-files)
-            - [生成下载授权凭证（downloadToken）](#download-token)
-        - [高级特性](#other-download-features)
-            - [断点续下载](#resumable-download)
-            - [自定义 404 NotFound](#upload-file-for-not-found)
-    - [文件管理](#file-management)
-        - [查看单个文件属性信息](#stat)
-        - [复制单个文件](#copy)
-        - [移动单个文件](#move)
-        - [删除单个文件](#delete)
-        - [批量操作](#batch)
-            - [批量获取文件属性信息](#batch-get)
-            - [批量复制文件](#batch-copy)
-            - [批量移动文件](#batch-move)
-            - [批量删除文件](#batch-delete)
-    - [云处理](#cloud-processing)
-        - [图像](#image-processing)
-            - [查看图片属性信息](#image-info)
-            - [查看图片EXIF信息](#image-exif)
-            - [图像在线处理（缩略、裁剪、旋转、转化）](#image-mogrify-for-preview)
-            - [图像在线处理（缩略、裁剪、旋转、转化）后并持久化存储](#image-mogrify-for-save-as)
-        - 音频(TODO)
-        - 视频(TODO)
-- [贡献代码](#Contributing)
-- [许可证](#License)
+- SDK 简介说明
+
+- SDK 接入/安装/环境依赖说明
+
+- SDK 使用篇
+
+    - 文件上传
+        - 生成上传授权凭证（uploadToken）
+        - 上传文件
+        - 断点续上传（如果SDK支持）
+    
+    - 文件下载
+        - 公有资源下载（[引导至API说明](http://docs.qiniutek.com/v3/api/io/#public-download)）
+        - 私有资源下载
+            - 生成下载授权凭证（downloadToken）
+        - 高级特性
+            - 断点续下载（[引导至API说明](http://docs.qiniutek.com/v3/api/io/#download-by-range-bytes)）
+            - 自定义 404 NotFound（[引导至API说明](http://docs.qiniutek.com/v3/api/io/#download-if-notfound)）
+    
+    - 文件操作
+        - 查看文件基本属性信息
+        - 复制文件
+        - 移动文件
+        - 删除文件
+        - 批量操作（查看、复制、移动、删除）
+    
+    - 云处理
+        - 图像
+            - 查看图片属性信息
+            - 查看图片EXIF信息
+            - 图像在线处理（缩略、裁剪、旋转、转化）
+            - 图像在线处理（缩略、裁剪、旋转、转化）后并持久化存储
+        - 音频
+        - 视频
+
+
+样例可以参考：<http://docs.qiniutek.com/v3/sdk/ruby/>
+
+
+## SDK 文档书写细节（范例）
+
+TODO
