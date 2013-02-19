@@ -72,8 +72,6 @@ Others
 
 ## 样例参考
 
-SDK 文档样例参考：<http://docs.qiniutek.com/v3/sdk/ruby/>
-
-文档源文件参考：<https://github.com/qiniu/ruby-sdk/blob/develop/docs/README.md>
+SDK 文档源文件参考：<https://github.com/qiniu/ruby-sdk/blob/develop/docs/README.md>
 
 Markdown 源文件参考: <https://raw.github.com/qiniu/ruby-sdk/develop/docs/README.md>
