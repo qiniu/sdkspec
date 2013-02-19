@@ -2,7 +2,11 @@
 
 ## 单元测试写法
 
-一般来讲，单元测试的代码量是业务逻辑的3倍，针对每一个业务逻辑要写3个测试：YES逻辑断言, FALSE逻辑断言, 异常出错逻辑断言。
+一般来讲，单元测试的代码量是业务逻辑的3倍，针对每一个业务逻辑要写3个测试：
+
+- YES 逻辑断言
+- FALSE 逻辑断言
+- 异常出错逻辑断言（ERROR）
 
 单元测试需覆盖所有的业务逻辑。
 
@@ -38,7 +42,7 @@ context :some_feature do
     end
 
     # 异常出错逻辑断言
-    it "should be Raise Err" do
+    it "should be raise ERROR" do
         # do some thing
     end
 end
