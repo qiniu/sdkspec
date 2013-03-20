@@ -9,10 +9,10 @@
 - 函数多返回值：有的语言不支持返回多个返回值，也不支持返回元组（tuple）。
 
 
-## 服务端配置(conf)
+## 服务端配置（conf）
 
 ```{go}
-package qiniu.conf
+package "qiniu/api/conf"
 
 var IO_HOST string // 客户端不需要？答：由于未来推荐用户上传时用 <bucket>.qiniup.com，所以没有全局 IO_HOST
 var RS_HOST string
@@ -24,40 +24,25 @@ var SECRET_KEY string
 范围：仅在服务端使用
 
 
-## 生成上传/下载凭证(token)
+## 授权（auth）
 
 ```{go}
-package qiniu.auth
+package "qiniu/api/auth"
 
-class PutPolicy {
-	scope string // 可以是 bucketName 或者 bucketName:key
-	callbackUrl string
-	callbackBodyType string
-	customer string
-	syncOps string
-	expires int
-	escape bool
+type Client interface {
+	...
 }
-
-func PutPolicy.token() string
-
-class GetPolicy {
-	scope string // 格式是 domainPattern/keyPattern，没有默认值，用 */* 授权粒度过大，用 */key 比较合适。
-	expires int
-}
-
-func GetPolicy.token() string
 ```
 
-范围：仅在服务端使用
+范围：服务端或客户端
 
 
-## API请求授权(digestauth)
+## API请求授权（digest auth，适用于所有API）
 
 ```{go}
-package qiniu.digestauth
+package "qiniu/api/auth/digest"
 
-class Client {
+type Client struct {
 	...
 }
 
@@ -67,12 +52,12 @@ func New() Client
 范围：仅在服务端使用
 
 
-## 上传授权(uploadauth)
+## 上传请求授权（upload auth，仅适用于上传API）
 
 ```{go}
-package qiniu.uploadauth
+package "qiniu/api/auth/up"
 
-class Client {
+type Client struct {
 	...
 }
 
@@ -82,29 +67,32 @@ func New(uptoken string) Client
 范围：服务端或客户端
 
 
-## 普通上传(upload)
-
-
-## 断点续上传(resumable upload)
-
-
-## 存储API(rs)
+## 生成上传/下载授权凭证(uptoken/dntoken)
 
 ```{go}
-package qiniu.rs
+package "qiniu/api/rs"
 
-class Service {
+type PutPolicy struct {
+	Scope string				// 必选项。可以是 bucketName 或者 bucketName:key
+	CallbackUrl string			// 可选
+	CallbackBodyType string		// 可选
+	Customer string				// 可选
+	AsyncOps string				// 可选
+	ReturnBody string			// 可选
+	Expires uint32				// 可选。默认是 3600 秒
+	Escape bool					// 可选
+	DetectMime bool				// 可选
 }
+
+func (this *PutPolicy) Token() (uptoken string)
+
+type GetPolicy struct {
+    Scope string				// 格式是 domainPattern/keyPattern，没有默认值，用 */* 授权粒度过大，用 */key 比较合适。
+    Expires uint32				// 可选。默认是 3600 秒
+}
+
+func (this *GetPolicy) Token() (dntoken string)
 ```
 
 范围：仅在服务端使用
-
-
-## 文件处理(filop)
-
-```{go}
-package qiniu.fileop
-```
-
-范围：服务端或客户端
 
