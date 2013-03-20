@@ -12,8 +12,9 @@
 ## 服务端配置（conf）
 
 ```{go}
-package "qiniu/conf"
+package "qiniu/api/conf"
 
+var IO_HOST string // 客户端不需要？答：由于未来推荐用户上传时用 <bucket>.qiniup.com，所以没有全局 IO_HOST
 var RS_HOST string
 
 var ACCESS_KEY string
@@ -23,237 +24,75 @@ var SECRET_KEY string
 范围：仅在服务端使用
 
 
-## 构造带授权的 HTTP Client（conn）
+## 授权（auth）
 
 ```{go}
-package "qiniu/auth"
+package "qiniu/api/auth"
+
+type Client interface {
+	...
+}
+```
+
+范围：服务端或客户端
 
 
-// class auth.Client
+## API请求授权（digest auth，适用于所有API）
+
+```{go}
+package "qiniu/api/auth/digest"
 
 type Client struct {
-    ...
+	...
 }
 
+func New() Client
 ```
 
 范围：仅在服务端使用
 
 
-## API 请求授权（digestAuth）
+## 上传请求授权（upload auth，仅适用于上传API）
 
 ```{go}
-package "qiniu/auth/digest"
-
-
-// class digest.Client extends auth.Client { ... }
+package "qiniu/api/auth/up"
 
 type Client struct {
-
-    auth.Client // extends auth.Client
-
-    ...
+	...
 }
 
-
-func New() (conn Client) { ... }
+func New(uptoken string) Client
 ```
 
-范围：仅在服务端使用
+范围：服务端或客户端
 
 
-## 上传请求授权（uploadAuth）
-
-```{go}
-package "qiniu/auth/up"
-
-
-// class up.Client extends auth.Client { ... }
-
-type Client struct {
-
-    auth.Client // extends auth.Client
-
-    ...
-}
-
-
-func New(uploadToken string) (conn Client) { ... }
-```
-
-范围：服务端 / 客户端 使用
-
-
-## 生成上传/下载授权凭证（token）
+## 生成上传/下载授权凭证(uptoken/dntoken)
 
 ```{go}
-package "qiniu/auth"
-
-
-// class auth.PutPolicy
+package "qiniu/api/rs"
 
 type PutPolicy struct {
-    Scope string // 可以是 bucketName 或者 bucketName:key
-    Expires int64
-    CallbackUrl string
-    CallbackBodyType string
-    Customer string
-    Escape bool
-    AsyncOps string
-    ReturnBody string
+	Scope string				// 必选项。可以是 bucketName 或者 bucketName:key
+	CallbackUrl string			// 可选
+	CallbackBodyType string		// 可选
+	Customer string				// 可选
+	AsyncOps string				// 可选
+	ReturnBody string			// 可选
+	Expires uint32				// 可选。默认是 3600 秒
+	Escape bool					// 可选
+	DetectMime bool				// 可选
 }
 
-// 生成 uploadToken
-
-func (this *PutPolicy) Token() (uploadToken string) { ... }
-
-
-// class auth.GettPolicy
+func (this *PutPolicy) Token() (uptoken string)
 
 type GetPolicy struct {
-    Scope string // 格式是 domainPattern/keyPattern，没有默认值，用 */* 授权粒度过大，用 */key 比较合适。
-    Expires int64
+    Scope string				// 格式是 domainPattern/keyPattern，没有默认值，用 */* 授权粒度过大，用 */key 比较合适。
+    Expires uint32				// 可选。默认是 3600 秒
 }
 
-// 生成 downloadToken
-
-func (this *GetPolicy) Token() (downloadToken string) { ... }
-
+func (this *GetPolicy) Token() (dntoken string)
 ```
 
 范围：仅在服务端使用
 
-
-## 上传文件（up）
-
-```{go}
-package "qiniu/up"
-
-
-// class up.Service
-
-type Service struct {
-
-    Conn auth.up.Client
-
-    Host string // 上传地址，一般是 <bucket>.qiniup.com
-
-}
-
-
-// 上传一个流，有待补充
-
-func (this *Service) Put()
-
-
-// 上传一个文件，有待补充
-
-func (this *Service) PutFile()
-
-
-// 断点续上传，有待补充，这个func可能还需要拆分下
-
-func (this *Service) ResumablePut()
-
-
-func New(conn auth.up.Client, host string) (up Service) { ... }
-
-```
-
-范围：服务端 / 客户端 均可使用
-
-
-## 存储API（rs）
-
-```{go}
-package "qiniu/rs"
-
-
-// class rs.Service
-
-type Service struct {
-
-    Conn auth.digest.Client
-
-}
-
-// 查看单个文件信息
-
-func (this *Service) Stat(entryURI string)
-
-
-// 删除单个文件
-
-func (this *Service) Delete(entryURI string)
-
-
-// 复制单个文件
-
-func (this *Service) Copy(entryURISrc, entryURIDest string)
-
-
-// 移动单个文件
-
-func (this *Service) Move(entryURISrc, entryURIDest string)
-
-
-// 批量操作
-
-func (this *Service) BatchStat([entryURI, ...])
-
-func (this *Service) BatchDelete([entryURI, ...])
-
-func (this *Service) BatchCopy([[entryURISrc, entryURIDest], ...])
-
-func (this *Service) BatchMove([[entryURISrc, entryURIDest], ...])
-
-
-func New(conn auth.digest.Client) (rs Service) { ... }
-
-```
-
-范围：仅在服务端使用
-
-
-## 文件处理（fop）
-
-```{go}
-package "qiniu/fop"
-
-
-func ImageInfo(imageURL string) (data JSON) { ... }
-
-func ImageExif(imageURL string) (data JSON) { ... }
-
-func ImageMogrifyForPreview(imageURL string, mogrifyOptions map[string]string) (previewURL string) { ... }
-
-
-// class fop.Service
-
-type Service struct {
-
-    Conn auth.digest.Client
-
-}
-
-
-// 获取文件临时授权下载链接（private, 主要是 saveAs 要用）
-
-func (this *Service) get(entryURI string) (url string, err error) { ... }
-
-
-// 文件在线处理并持久化存储
-
-func (this *Service) SaveAs(entryURISrc, entryURIDest, opStr string)
-
-
-// 图像在线处理（缩略、裁剪、旋转、转化）后并持久化存储
-
-func (this *Service) ImageMogrifySaveAs(entryURISrc, entryURIDest string, mogrifyOptions map[string]string)
-
-
-func New(conn auth.digest.Client) (fop Service) { ... }
-
-```
-
-范围：服务端
