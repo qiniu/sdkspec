@@ -67,7 +67,7 @@ func New(uptoken string) Client
 范围：服务端或客户端
 
 
-## 生成上传/下载授权凭证(uptoken/dntoken)
+## 生成上传/下载授权凭证（uptoken/dntoken）
 
 ```{go}
 package "qiniu/api/rs"
@@ -95,4 +95,21 @@ func (this *GetPolicy) Token() (dntoken string)
 ```
 
 范围：仅在服务端使用
+
+
+## 存储API（rs）
+
+```{go}
+package "qiniu/api/rs"
+
+todo (参考 https://github.com/qiniu/api/rs 定出规范)
+```
+
+## 数据处理API（fop）
+
+```{go}
+package "qiniu/api/fop"
+
+todo (参考 https://github.com/qiniu/java-sdk/tree/develop/src/main/java/com/qiniu/qbox/fileop 定出规范)
+```
 
