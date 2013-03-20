@@ -97,7 +97,7 @@ func (this *GetPolicy) Token() (dntoken string)
 范围：仅在服务端使用
 
 
-## 存储API(rs)
+## 存储API（rs）
 
 ```{go}
 package "qiniu/api/rs"
@@ -105,7 +105,7 @@ package "qiniu/api/rs"
 todo (参考 https://github.com/qiniu/api/rs 定出规范)
 ```
 
-## 数据处理API(fop)
+## 数据处理API（fop）
 
 ```{go}
 package "qiniu/api/fop"
