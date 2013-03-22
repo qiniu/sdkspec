@@ -113,12 +113,38 @@ func (this Client) Delete(bucket, key string) (error)
 func (this Client) Move(bucketSrc, keySrc, bucketDest, keyDest string) (error)
 func (this Client) Copy(bucketSrc, keySrc, bucketDest, keyDest string) (error)
 
+type Entry struct {
+	Hash     string
+	Fsize    int64
+	PutTime  int64
+	MimeType string
+	Customer string
+}
+
 // batch
 
-func (this Client) BatchStat([[bucket1, key1], [bucket2, key2]...]) ([]BatchStatItemRet, error)
-func (this Client) BatchDelete([[bucket1, key1], [bucket2, key2]...]) ([]BatchItemRet, error)
-func (this Client) BatchMove([[bucketSrc, keySrc, bucketDest, keyDest]...]) ([]BatchItemRet, error)
-func (this Client) BatchCopy([[bucketSrc, keySrc, bucketDest, keyDest]...]) ([]BatchItemRet, error)
+type EntryPath struct {
+	Bucket string
+	Key string
+}
+type EntryPathPair struct {
+	Src EntryPath
+	Dest EntryPath
+}
+type BatchItemRet struct {
+	Code  int
+	Error string
+}
+type BatchStatItemRet struct {
+	Data  Entry
+	Code  int
+	Error string
+}
+
+func (this Client) BatchStat(entries []EntryPath) ([]BatchStatItemRet, error)
+func (this Client) BatchDelete(entries []EntryPath) ([]BatchItemRet, error)
+func (this Client) BatchMove(entries []EntryPathPair) ([]BatchItemRet, error)
+func (this Client) BatchCopy(entries []EntryPathPair) ([]BatchItemRet, error)
 ```
 
 范围：仅在服务端使用
@@ -134,32 +160,53 @@ type Client struct {
 }
 func New() Client
 
+type FileProfile struct {
+	Expires int
+	Url string
+	MimeType string
+	Hash string
+	Fsize int64
+}
+
 func (this Client) get(entryURI string) (FileProfile, error) // 根据entryURI拿到文件信息
 
 // ImageView
 
 type ImageView struct {
-	...
+	Mode uint		// 1或2
+	Width uint		
+	Height uint		
+	Quality uint	// 质量, 1-100
+	Format string	// 输出格式, jpg, gif, png, tif 等图片格式
 }
 func (this ImageView) MakeRequest(url string) string
 
 // ImageInfo
 
 type ImageInfoRet struct {
-	...
+	Format string
+	Width uint
+	Height uint
+	ColorModel string
 }
 func ImageInfo(url string) (ImageInfoRet, error)
 
 // ImageMogrify
 
 type ImageMogrify struct {
-	...
+	AutoOrient bool		// 根据原图EXIF信息自动旋正
+	Thumbnail string	// 缩略图尺寸
+	Gravity string		// 
+	Crop string			// 裁剪尺寸
+	Quality uint		// 质量
+	Rotate uint			// 旋转角度, 单位为度
+	Format string		// png, jpg等图片格式
 }
 func (this ImageMogrify) Marshal() (string) // 将参数转成uri
 func (this ImageMogrify) MakeRequest(url string) (string) // 将url和uri合并,生成请求链接
 
 // 将图片进行处理并持久化存储, 文档请参考 http://docs.qiniutek.com/v3/api/foimg/#imageMogrAs
-func (this ImageMogrify) SaveAs(bucketSrc, keySrc, bucketDest, keyDest string) (Entry, error)
+func (this ImageMogrify) SaveAs(entryURISrc, entryURIDest string) (rs.Entry, error)
 ```
 范围：仅在服务端使用
 
