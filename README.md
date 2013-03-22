@@ -107,12 +107,19 @@ type Client struct {
 	...
 }
 func New() Client
-func NewEx(http.RoundTripper) Client
 
 func (this Client) Stat(bucket, key string) (Entry, error)
 func (this Client) Delete(bucket, key string) (error)
 func (this Client) Move(bucketSrc, keySrc, bucketDest, keyDest string) (error)
 func (this Client) Copy(bucketSrc, keySrc, bucketDest, keyDest string) (error)
+
+type Entry struct {
+	Hash     string
+	Fsize    int64
+	PutTime  int64
+	MimeType string
+	Customer string
+}
 
 // batch
 
@@ -152,7 +159,6 @@ type Client struct {
 	...
 }
 func New() Client
-func NewEx(http.RoundTripper) Client
 
 type FileProfile struct {
 	Expires int
@@ -199,7 +205,7 @@ type ImageMogrify struct {
 func (this ImageMogrify) Marshal() (string) // 将参数转成uri
 func (this ImageMogrify) MakeRequest(url string) (string) // 将url和uri合并,生成请求链接
 
-// 将图片进行处理并持久化存储
+// 将图片进行处理并持久化存储, 文档请参考 http://docs.qiniutek.com/v3/api/foimg/#imageMogrAs
 func (this ImageMogrify) SaveAs(entryURISrc, entryURIDest string) (rs.Entry, error)
 ```
 范围：仅在服务端使用
