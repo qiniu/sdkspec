@@ -102,14 +102,105 @@ func (this *GetPolicy) Token() (dntoken string)
 ```{go}
 package "qiniu/api/rs"
 
-todo (参考 https://github.com/qiniu/api/rs 定出规范)
+// todo (参考 https://github.com/qiniu/api/tree/develop/rs 定出规范)
+type Client struct {
+	...
+}
+func New() Client
+func NewEx(http.RoundTripper) Client
+
+func (this Client) Stat(bucket, key string) (Entry, error)
+func (this Client) Delete(bucket, key string) (error)
+func (this Client) Move(bucketSrc, keySrc, bucketDest, keyDest string) (error)
+func (this Client) Copy(bucketSrc, keySrc, bucketDest, keyDest string) (error)
+
+// batch
+
+type EntryPath struct {
+	Bucket string
+	Key string
+}
+type EntryPathPair struct {
+	Src EntryPath
+	Dest EntryPath
+}
+type BatchItemRet struct {
+	Code  int
+	Error string
+}
+type BatchStatItemRet struct {
+	Data  Entry
+	Code  int
+	Error string
+}
+
+func (this Client) BatchStat(entries []EntryPath) ([]BatchStatItemRet, error)
+func (this Client) BatchDelete(entries []EntryPath) ([]BatchItemRet, error)
+func (this Client) BatchMove(entries []EntryPathPair) ([]BatchItemRet, error)
+func (this Client) BatchCopy(entries []EntryPathPair) ([]BatchItemRet, error)
 ```
+
+范围：仅在服务端使用
 
 ## 数据处理API（fop）
 
 ```{go}
 package "qiniu/api/fop"
 
-todo (参考 https://github.com/qiniu/java-sdk/tree/develop/src/main/java/com/qiniu/qbox/fileop 定出规范)
-```
+// todo (参考 https://github.com/qiniu/java-sdk/tree/develop/src/main/java/com/qiniu/qbox/fileop 定出规范)
+type Client struct {
+	...
+}
+func New() Client
+func NewEx(http.RoundTripper) Client
 
+type FileProfile struct {
+	Expires int
+	Url string
+	MimeType string
+	Hash string
+	Fsize int64
+}
+
+func (this Client) get(entryURI string) (FileProfile, error) // 根据entryURI拿到文件信息
+
+// ImageView
+
+type ImageView struct {
+	Mode uint		// 1或2
+	Width uint		
+	Height uint		
+	Quality uint	// 质量, 1-100
+	Format string	// 输出格式, jpg, gif, png, tif 等图片格式
+}
+func (this ImageView) MakeRequest(url string) string
+
+// ImageInfo
+
+type ImageInfoRet struct {
+	Format string
+	Width uint
+	Height uint
+	ColorModel string
+}
+func ImageInfo(url string) (ImageInfoRet, error)
+
+// ImageMogrify
+
+type ImageMogrify struct {
+	AutoOrient bool		// 根据原图EXIF信息自动旋正
+	Thumbnail string	// 缩略图尺寸
+	Gravity string		// 
+	Crop string			// 裁剪尺寸
+	Quality uint		// 质量
+	Rotate uint			// 旋转角度, 单位为度
+	Format string		// png, jpg等图片格式
+}
+func (this ImageMogrify) Marshal() (string) // 将参数转成uri
+func (this ImageMogrify) MakeRequest(url string) (string) // 将url和uri合并,生成请求链接
+
+// 将图片进行处理并持久化存储
+func (this ImageMogrify) SaveAs(entryURISrc, entryURIDest string) (rs.Entry, error)
+```
+范围：仅在服务端使用
+
