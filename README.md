@@ -235,5 +235,5 @@ type ImageExif struct {}
 func (this ImageExif) MakeRequest(url string) (string)
 func (this ImageExif) Call(url string) (ImageExifRet, error)
 ```
-范围：仅在服务端使用
+范围：客户端和服务端
 
