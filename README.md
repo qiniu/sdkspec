@@ -207,7 +207,25 @@ type ValType struct {
 	Type int
 }
 
-type ImageExifRet map[string] ValType
+type ImageExifRet struct {
+	Model             ValType
+	ColorSpace        ValType
+	ImageLength       ValType
+	YResolution       ValType
+	ExifVersion       ValType
+	ResolutionUnit    ValType
+	FlashPixVersion   ValType
+	Software          ValType
+	Orientation       ValType
+	Make              ValType
+	DateTimeOriginal  ValType
+	UserComment       ValType
+	YCbCrPositioning  ValType
+	XResolution       ValType
+	ImageWidth        ValType
+	DateTime          ValType
+	DateTimeDigitized ValType
+}
 
 type ImageExif struct {}
 
