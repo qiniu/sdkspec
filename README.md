@@ -102,10 +102,10 @@ func (this *GetPolicy) Token() (dntoken string)
 ```{go}
 package "qiniu/api/rs"
 
-// todo (参考 https://github.com/qiniu/api/tree/develop/rs 定出规范)
 type Client struct {
 	...
 }
+
 func New() Client
 
 func (this Client) Stat(bucket, key string) (Entry, error)
@@ -154,32 +154,23 @@ func (this Client) BatchCopy(entries []EntryPathPair) ([]BatchItemRet, error)
 ```{go}
 package "qiniu/api/fop"
 
-// todo (参考 https://github.com/qiniu/java-sdk/tree/develop/src/main/java/com/qiniu/qbox/fileop 定出规范)
 type Client struct {
 	...
 }
+
 func New() Client
-
-type FileProfile struct {
-	Expires int
-	Url string
-	MimeType string
-	Hash string
-	Fsize int64
-}
-
-func (this Client) get(entryURI string) (FileProfile, error) // 根据entryURI拿到文件信息
 
 // ImageView
 
 type ImageView struct {
 	Mode uint		// 1或2
-	Width uint		
+	Width uint		// Width 默认为0，表示不限定宽度
 	Height uint		
 	Quality uint	// 质量, 1-100
 	Format string	// 输出格式, jpg, gif, png, tif 等图片格式
 }
-func (this ImageView) MakeRequest(url string) string
+
+func (this *ImageView) MakeRequest(url string) string
 
 // ImageInfo
 
@@ -189,7 +180,10 @@ type ImageInfoRet struct {
 	Height uint
 	ColorModel string
 }
-func ImageInfo(url string) (ImageInfoRet, error)
+
+type ImageInfo struct {}
+
+func (this ImageInfo) Call(url string) (ImageInfoRet, error)
 
 // ImageMogrify
 
@@ -202,11 +196,21 @@ type ImageMogrify struct {
 	Rotate uint			// 旋转角度, 单位为度
 	Format string		// png, jpg等图片格式
 }
-func (this ImageMogrify) Marshal() (string) // 将参数转成uri
-func (this ImageMogrify) MakeRequest(url string) (string) // 将url和uri合并,生成请求链接
 
-// 将图片进行处理并持久化存储, 文档请参考 http://docs.qiniutek.com/v3/api/foimg/#imageMogrAs
-func (this ImageMogrify) SaveAs(entryURISrc, entryURIDest string) (rs.Entry, error)
+func (this *ImageMogrify) MakeRequest(url string) (string) // 将url和uri合并,生成请求链接
+
+// ImageExif
+
+type ValType struct {
+	Val string
+	Type int
+}
+
+type ImageExifRet map[string] ValType
+
+type ImageExif struct {}
+
+func (this ImageExif) Call(url string) (ImageExifRet, error)
 ```
 范围：仅在服务端使用
 
