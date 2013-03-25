@@ -207,30 +207,12 @@ func (this *ImageMogrify) MakeRequest(url string) (string) // 将url和uri合并
 
 // ImageExif
 
-type ValType struct {
+type ExifValType struct {
 	Val string
 	Type int
 }
 
-type ImageExifRet struct {
-	Model             ValType
-	ColorSpace        ValType
-	ImageLength       ValType
-	YResolution       ValType
-	ExifVersion       ValType
-	ResolutionUnit    ValType
-	FlashPixVersion   ValType
-	Software          ValType
-	Orientation       ValType
-	Make              ValType
-	DateTimeOriginal  ValType
-	UserComment       ValType
-	YCbCrPositioning  ValType
-	XResolution       ValType
-	ImageWidth        ValType
-	DateTime          ValType
-	DateTimeDigitized ValType
-}
+type ImageExifRet map[string] ExifValType
 
 type ImageExif struct {}
 
