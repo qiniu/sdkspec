@@ -1,5 +1,7 @@
 # Qiniu Resource (Cloud) Storage SDK Specification
 
+[![Qiniu Logo](http://qiniutek.com/images/logo-2.png)](http://qiniu.com/)
+
 ## 语言差异性
 
 - 命名风格：不同语言可以有不同的命名风格。本规范主要按类 Golang 风格进行描述（但不完全是）。
