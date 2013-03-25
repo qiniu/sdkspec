@@ -127,14 +127,17 @@ type EntryPath struct {
 	Bucket string
 	Key string
 }
+
 type EntryPathPair struct {
 	Src EntryPath
 	Dest EntryPath
 }
+
 type BatchItemRet struct {
 	Code  int
 	Error string
 }
+
 type BatchStatItemRet struct {
 	Data  Entry
 	Code  int
