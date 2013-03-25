@@ -102,14 +102,138 @@ func (this *GetPolicy) Token() (dntoken string)
 ```{go}
 package "qiniu/api/rs"
 
-todo (参考 https://github.com/qiniu/api/rs 定出规范)
+type Client struct {
+	...
+}
+
+func New() Client
+
+func (this Client) Stat(bucket, key string) (Entry, error)
+func (this Client) Delete(bucket, key string) (error)
+func (this Client) Move(bucketSrc, keySrc, bucketDest, keyDest string) (error)
+func (this Client) Copy(bucketSrc, keySrc, bucketDest, keyDest string) (error)
+
+type Entry struct {
+	Hash     string
+	Fsize    int64
+	PutTime  int64
+	MimeType string
+	Customer string
+}
+
+// batch
+
+type EntryPath struct {
+	Bucket string
+	Key string
+}
+
+type EntryPathPair struct {
+	Src EntryPath
+	Dest EntryPath
+}
+
+type BatchItemRet struct {
+	Code  int
+	Error string
+}
+
+type BatchStatItemRet struct {
+	Data  Entry
+	Code  int
+	Error string
+}
+
+func (this Client) BatchStat(entries []EntryPath) ([]BatchStatItemRet, error)
+func (this Client) BatchDelete(entries []EntryPath) ([]BatchItemRet, error)
+func (this Client) BatchMove(entries []EntryPathPair) ([]BatchItemRet, error)
+func (this Client) BatchCopy(entries []EntryPathPair) ([]BatchItemRet, error)
 ```
+
+范围：仅在服务端使用
 
 ## 数据处理API（fop）
 
 ```{go}
 package "qiniu/api/fop"
 
-todo (参考 https://github.com/qiniu/java-sdk/tree/develop/src/main/java/com/qiniu/qbox/fileop 定出规范)
-```
+type Client struct {
+	...
+}
 
+func New() Client
+
+// ImageView
+
+type ImageView struct {
+	Mode uint		// 1或2
+	Width uint		// Width 默认为0，表示不限定宽度
+	Height uint		
+	Quality uint	// 质量, 1-100
+	Format string	// 输出格式, jpg, gif, png, tif 等图片格式
+}
+
+func (this *ImageView) MakeRequest(url string) string
+
+// ImageInfo
+
+type ImageInfoRet struct {
+	Format string
+	Width uint
+	Height uint
+	ColorModel string
+}
+
+type ImageInfo struct {}
+
+func (this ImageInfo) MakeRequest(url string) (string)
+func (this ImageInfo) Call(url string) (ImageInfoRet, error)
+
+// ImageMogrify
+
+type ImageMogrify struct {
+	AutoOrient bool		// 根据原图EXIF信息自动旋正
+	Thumbnail string	// 缩略图尺寸
+	Gravity string		// 
+	Crop string			// 裁剪尺寸
+	Quality uint		// 质量
+	Rotate uint			// 旋转角度, 单位为度
+	Format string		// png, jpg等图片格式
+}
+
+func (this *ImageMogrify) MakeRequest(url string) (string) // 将url和uri合并,生成请求链接
+
+// ImageExif
+
+type ValType struct {
+	Val string
+	Type int
+}
+
+type ImageExifRet struct {
+	Model             ValType
+	ColorSpace        ValType
+	ImageLength       ValType
+	YResolution       ValType
+	ExifVersion       ValType
+	ResolutionUnit    ValType
+	FlashPixVersion   ValType
+	Software          ValType
+	Orientation       ValType
+	Make              ValType
+	DateTimeOriginal  ValType
+	UserComment       ValType
+	YCbCrPositioning  ValType
+	XResolution       ValType
+	ImageWidth        ValType
+	DateTime          ValType
+	DateTimeDigitized ValType
+}
+
+type ImageExif struct {}
+
+func (this ImageExif) MakeRequest(url string) (string)
+func (this ImageExif) Call(url string) (ImageExifRet, error)
+```
+范围：客户端和服务端
+
