@@ -159,65 +159,53 @@ func (this Client) BatchCopy(entries []EntryPathPair) ([]BatchItemRet, error)
 ```{go}
 package "qiniu/api/fop"
 
-type Client struct {
-	...
-}
-
-func New() Client
-
-// ImageView
+// imageView
 
 type ImageView struct {
-	Mode uint		// 1或2
-	Width uint		// Width 默认为0，表示不限定宽度
-	Height uint		
+	Mode uint		// 缩略模式
+	Width uint		// Width = 0 表示不限定宽度
+	Height uint		// Height = 0 表示不限定高度
 	Quality uint	// 质量, 1-100
-	Format string	// 输出格式, jpg, gif, png, tif 等图片格式
+	Format string	// 输出格式，如jpg, gif, png, tif等等
 }
 
-func (this *ImageView) MakeRequest(url string) string
+func (this *ImageView) MakeRequest(url string) (imageViewUrl string)
 
-// ImageInfo
+// imageMogr
+
+type ImageMogrify struct {
+	...				// 待标准化
+}
+
+func (this *ImageMogrify) MakeRequest(url string) (imageMogrUrl string)
+
+// imageInfo
 
 type ImageInfoRet struct {
-	Format string
 	Width uint
 	Height uint
+	Format string
 	ColorModel string
 }
 
 type ImageInfo struct {}
 
-func (this ImageInfo) MakeRequest(url string) (string)
-func (this ImageInfo) Call(url string) (ImageInfoRet, error)
+func (this ImageInfo) MakeRequest(url string) (imageInfoUrl string)
+func (this ImageInfo) Call(url string) (ret ImageInfoRet, err error)
 
-// ImageMogrify
-
-type ImageMogrify struct {
-	AutoOrient bool		// 根据原图EXIF信息自动旋正
-	Thumbnail string	// 缩略图尺寸
-	Gravity string		// 
-	Crop string			// 裁剪尺寸
-	Quality uint		// 质量
-	Rotate uint			// 旋转角度, 单位为度
-	Format string		// png, jpg等图片格式
-}
-
-func (this *ImageMogrify) MakeRequest(url string) (string) // 将url和uri合并,生成请求链接
-
-// ImageExif
+// exif
 
 type ExifValType struct {
 	Val string
 	Type int
 }
 
-type ImageExifRet map[string] ExifValType
+type ExifRet map[string] ExifValType
+type Exif struct {}
 
-type ImageExif struct {}
-
-func (this ImageExif) MakeRequest(url string) (string)
-func (this ImageExif) Call(url string) (ImageExifRet, error)
+func (this Exif) MakeRequest(url string) (imageExifUrl string)
+func (this Exif) Call(url string) (ret ExifRet, err error)
 ```
+
 范围：客户端和服务端
-
+
