@@ -82,8 +82,8 @@ type PutPolicy struct {
 	AsyncOps string				// 可选
 	ReturnBody string			// 可选
 	Expires uint32				// 可选。默认是 3600 秒
-	Escape bool					// 可选
-	DetectMime bool				// 可选
+	Escape uint16				// 可选。非 0 表示 Callback 的 Params 支持转义符
+	DetectMime uint16			// 可选。非 0 表示在服务端自动检测文件内容的 MimeType
 }
 
 func (this *PutPolicy) Token() (uptoken string)
@@ -110,10 +110,10 @@ type Client struct {
 
 func New() Client
 
-func (this Client) Stat(bucket, key string) (Entry, error)
-func (this Client) Delete(bucket, key string) (error)
-func (this Client) Move(bucketSrc, keySrc, bucketDest, keyDest string) (error)
-func (this Client) Copy(bucketSrc, keySrc, bucketDest, keyDest string) (error)
+func (this Client) Stat(bucket, key string) (entry Entry, err error)
+func (this Client) Delete(bucket, key string) (err error)
+func (this Client) Move(bucketSrc, keySrc, bucketDest, keyDest string) (err error)
+func (this Client) Copy(bucketSrc, keySrc, bucketDest, keyDest string) (err error)
 
 type Entry struct {
 	Hash     string
@@ -136,23 +136,63 @@ type EntryPathPair struct {
 }
 
 type BatchItemRet struct {
-	Code  int
 	Error string
+	Code  int
 }
 
 type BatchStatItemRet struct {
 	Data  Entry
-	Code  int
 	Error string
+	Code  int
 }
 
-func (this Client) BatchStat(entries []EntryPath) ([]BatchStatItemRet, error)
-func (this Client) BatchDelete(entries []EntryPath) ([]BatchItemRet, error)
-func (this Client) BatchMove(entries []EntryPathPair) ([]BatchItemRet, error)
-func (this Client) BatchCopy(entries []EntryPathPair) ([]BatchItemRet, error)
+func (this Client) BatchStat(entries []EntryPath) (rets []BatchStatItemRet, err error)
+func (this Client) BatchDelete(entries []EntryPath) (rets []BatchItemRet, err error)
+func (this Client) BatchMove(entries []EntryPathPair) (rets []BatchItemRet, err error)
+func (this Client) BatchCopy(entries []EntryPathPair) (rets []BatchItemRet, err error)
 ```
 
 范围：仅在服务端使用
+
+
+## 上传/下载（io）
+
+```{go}
+package "qiniu/api/io"
+
+// upload
+
+type PutExtra struct {
+	CallbackParams	string	// 当 uptoken 指定了 CallbackUrl，则 CallbackParams 必须非空
+	CustomMeta		string	// 可选。用户自定义 Meta，不能超过 256 字节
+	MimeType		string	// 可选。在 uptoken 没有指定 DetectMime 时，用户客户端可自己指定 MimeType
+}
+
+type PutRet struct {
+	Hash			string	// 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构 
+}
+
+func Put(ret interface{}, uptoken string, bucket, key string, body io.Reader, fsize int64, extra *PutExtra) (err error)
+func PutFile(ret interface{}, uptoken string, bucket, key string, localFile string, extra *PutExtra) (err error)
+
+// download
+
+func GetUrl(domain string, key string, dntoken string) (downloadUrl string)
+```
+
+范围：客户端和服务端
+
+
+## 断点续上传（up）
+
+```{go}
+package "qiniu/api/up"
+
+todo :-)
+```
+
+范围：客户端和服务端
+
 
 ## 数据处理API（fop）
 
@@ -162,10 +202,10 @@ package "qiniu/api/fop"
 // imageView
 
 type ImageView struct {
-	Mode uint		// 缩略模式
-	Width uint		// Width = 0 表示不限定宽度
-	Height uint		// Height = 0 表示不限定高度
-	Quality uint	// 质量, 1-100
+	Mode int		// 缩略模式
+	Width int		// Width = 0 表示不限定宽度
+	Height int		// Height = 0 表示不限定高度
+	Quality int		// 质量, 1-100
 	Format string	// 输出格式，如jpg, gif, png, tif等等
 }
 
@@ -182,8 +222,8 @@ func (this *ImageMogrify) MakeRequest(url string) (imageMogrUrl string)
 // imageInfo
 
 type ImageInfoRet struct {
-	Width uint
-	Height uint
+	Width int
+	Height int
 	Format string
 	ColorModel string
 }
