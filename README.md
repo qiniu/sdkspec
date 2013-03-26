@@ -172,8 +172,8 @@ type PutRet struct {
 	Hash			string	// 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构 
 }
 
-func Put(ret interface{}, uptoken string, bucket, key string, body io.Reader, fsize int64, extra *PutExtra) (err error)
-func PutFile(ret interface{}, uptoken string, bucket, key string, localFile string, extra *PutExtra) (err error)
+func Put(ret interface{}, uptoken, bucket, key string, body io.Reader, fsize int64, extra *PutExtra) (err error)
+func PutFile(ret interface{}, uptoken, bucket, key string, localFile string, extra *PutExtra) (err error)
 
 // download
 
