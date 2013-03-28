@@ -164,6 +164,7 @@ package "qiniu/api/io"
 
 type PutExtra struct {
 	CallbackParams	string	// 当 uptoken 指定了 CallbackUrl，则 CallbackParams 必须非空
+	Bucket string		// 当前是必选项，但未来会去掉
 	CustomMeta		string	// 可选。用户自定义 Meta，不能超过 256 字节
 	MimeType		string	// 可选。在 uptoken 没有指定 DetectMime 时，用户客户端可自己指定 MimeType
 }
@@ -172,8 +173,8 @@ type PutRet struct {
 	Hash			string	// 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构 
 }
 
-func Put(ret interface{}, uptoken, bucket, key string, body io.Reader, fsize int64, extra *PutExtra) (err error)
-func PutFile(ret interface{}, uptoken, bucket, key string, localFile string, extra *PutExtra) (err error)
+func Put(ret interface{}, uptoken string, key string, body io.Reader, fsize int64, extra *PutExtra) (err error)
+func PutFile(ret interface{}, uptoken string, key string, localFile string, extra *PutExtra) (err error)
 
 // download
 
