@@ -149,12 +149,24 @@ package "qiniu/api/resumable/io"
 
 // upload
 
+type BlkputRet struct {
+	Ctx      string `json:"ctx"`
+	Checksum string `json:"checksum"`
+	Crc32    uint32 `json:"crc32"`
+	Offset   uint32 `json:"offset"`
+	Host     string `json:"host"`
+}
+
 type PutExtra struct {
 	CallbackParams	string	// 当 uptoken 指定了 CallbackUrl，则 CallbackParams 必须非空
 	Bucket			string	// 当前是必选项，但未来会去掉
 	CustomMeta		string	// 可选。用户自定义 Meta，不能超过 256 字节
 	MimeType		string	// 可选。在 uptoken 没有指定 DetectMime 时，用户客户端可自己指定 MimeType
-	Progress		func(blkIdx int, blkTransfered, blkSize int) // 可选。进度提示（注意多个block是并行传输的）。
+	ChunkSize		int		// 可选。每次上传的Chunk大小
+	TryTimes		int		// 可选。尝试次数
+	Progresses		[]BlkputRet // 可选。上传进度
+	Notify			func(blkIdx int, blkSize int, ret *BlkputRet) // 可选。进度提示（注意多个block是并行传输的）
+	NotifyErr		func(blkIdx int, blkSize int, err error)
 }
 
 type PutRet struct {
@@ -164,11 +176,15 @@ type PutRet struct {
 func Put(ret interface{}, uptoken string, key string, f io.ReaderAt, fsize int64, extra *PutExtra) (err error)
 func PutFile(ret interface{}, uptoken string, key string, localFile string, extra *PutExtra) (err error)
 
+func BlockCount(fsize int64) int
+
 // global settings
 
 type Settings {
-	TaskQsize	int		// 可选。任务队列大小。为 0 表示默认同 Workers。 
-	Workers		int		// 并行 Goroutine 数目。
+	TaskQsize   int     // 可选。任务队列大小。为 0 表示取 Workers * 4。 
+	Workers     int     // 并行的工作线程数目。
+	ChunkSize	int		// 默认的Chunk大小，不设定则为256k
+	TryTimes	int		// 默认的尝试次数，不设定则为3
 }
 
 func SetSettings(settings *Settings)
