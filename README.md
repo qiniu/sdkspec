@@ -16,14 +16,15 @@
 ```{go}
 package "qiniu/api/conf"
 
-var IO_HOST string // 客户端不需要？答：由于未来推荐用户上传时用 <bucket>.qiniup.com，所以没有全局 IO_HOST
+var UP_HOST string
+var IO_HOST string
 var RS_HOST string
 
 var ACCESS_KEY string
-var SECRET_KEY string
+var SECRET_KEY string // 不要在客户端初始化该变量
 ```
 
-范围：仅在服务端使用
+范围：服务端和客户端共用
 
 
 ## 存储API（rs）
