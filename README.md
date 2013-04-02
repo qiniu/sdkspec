@@ -26,20 +26,7 @@ var SECRET_KEY string
 范围：仅在服务端使用
 
 
-## 授权（auth）
-
-```{go}
-package "qiniu/api/auth"
-
-type Client interface {
-	...
-}
-```
-
-范围：服务端或客户端
-
-
-## API请求授权（digest auth，适用于所有API）
+## API请求授权（digest auth）
 
 ```{go}
 package "qiniu/api/auth/digest"
@@ -52,21 +39,6 @@ func New() Client
 ```
 
 范围：仅在服务端使用
-
-
-## 上传请求授权（upload auth，仅适用于上传API）
-
-```{go}
-package "qiniu/api/auth/up"
-
-type Client struct {
-	...
-}
-
-func New(uptoken string) Client
-```
-
-范围：服务端或客户端
 
 
 ## 生成上传/下载授权凭证（uptoken/dntoken）
@@ -164,7 +136,7 @@ package "qiniu/api/io"
 
 type PutExtra struct {
 	CallbackParams	string	// 当 uptoken 指定了 CallbackUrl，则 CallbackParams 必须非空
-	Bucket string		// 当前是必选项，但未来会去掉
+	Bucket			string	// 当前是必选项，但未来会去掉
 	CustomMeta		string	// 可选。用户自定义 Meta，不能超过 256 字节
 	MimeType		string	// 可选。在 uptoken 没有指定 DetectMime 时，用户客户端可自己指定 MimeType
 }
@@ -184,12 +156,36 @@ func GetUrl(domain string, key string, dntoken string) (downloadUrl string)
 范围：客户端和服务端
 
 
-## 断点续上传（up）
+## 断点续上传（resumable io）
 
 ```{go}
-package "qiniu/api/up"
+package "qiniu/api/resumable/io"
 
-todo :-)
+// upload
+
+type PutExtra struct {
+	CallbackParams	string	// 当 uptoken 指定了 CallbackUrl，则 CallbackParams 必须非空
+	Bucket			string	// 当前是必选项，但未来会去掉
+	CustomMeta		string	// 可选。用户自定义 Meta，不能超过 256 字节
+	MimeType		string	// 可选。在 uptoken 没有指定 DetectMime 时，用户客户端可自己指定 MimeType
+	Progress		func(blkIdx int, blkTransfered, blkSize int) // 可选。进度提示（注意多个block是并行传输的）。
+}
+
+type PutRet struct {
+	Hash			string	// 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构 
+}
+
+func Put(ret interface{}, uptoken string, key string, f io.ReaderAt, fsize int64, extra *PutExtra) (err error)
+func PutFile(ret interface{}, uptoken string, key string, localFile string, extra *PutExtra) (err error)
+
+// global settings
+
+type Settings {
+	TaskQsize	int		// 可选。任务队列大小。为 0 表示默认同 Workers。 
+	Workers		int		// 并行 Goroutine 数目。
+}
+
+func SetSettings(settings *Settings)
 ```
 
 范围：客户端和服务端
