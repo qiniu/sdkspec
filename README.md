@@ -41,36 +41,6 @@ func New() Client
 范围：仅在服务端使用
 
 
-## 生成上传/下载授权凭证（uptoken/dntoken）
-
-```{go}
-package "qiniu/api/rs"
-
-type PutPolicy struct {
-	Scope string				// 必选项。可以是 bucketName 或者 bucketName:key
-	CallbackUrl string			// 可选
-	CallbackBodyType string		// 可选
-	Customer string				// 可选
-	AsyncOps string				// 可选
-	ReturnBody string			// 可选
-	Expires uint32				// 可选。默认是 3600 秒
-	Escape uint16				// 可选。非 0 表示 Callback 的 Params 支持转义符
-	DetectMime uint16			// 可选。非 0 表示在服务端自动检测文件内容的 MimeType
-}
-
-func (this *PutPolicy) Token() (uptoken string)
-
-type GetPolicy struct {
-    Scope string				// 格式是 domainPattern/keyPattern，没有默认值，用 */* 授权粒度过大，用 */key 比较合适。
-    Expires uint32				// 可选。默认是 3600 秒
-}
-
-func (this *GetPolicy) Token() (dntoken string)
-```
-
-范围：仅在服务端使用
-
-
 ## 存储API（rs）
 
 ```{go}
@@ -122,6 +92,36 @@ func (this Client) BatchStat(entries []EntryPath) (rets []BatchStatItemRet, err 
 func (this Client) BatchDelete(entries []EntryPath) (rets []BatchItemRet, err error)
 func (this Client) BatchMove(entries []EntryPathPair) (rets []BatchItemRet, err error)
 func (this Client) BatchCopy(entries []EntryPathPair) (rets []BatchItemRet, err error)
+```
+
+范围：仅在服务端使用
+
+
+## 生成上传/下载授权凭证（uptoken/dntoken）
+
+```{go}
+package "qiniu/api/rs"
+
+type PutPolicy struct {
+	Scope string				// 必选项。可以是 bucketName 或者 bucketName:key
+	CallbackUrl string			// 可选
+	CallbackBodyType string		// 可选
+	Customer string				// 可选
+	AsyncOps string				// 可选
+	ReturnBody string			// 可选
+	Expires uint32				// 可选。默认是 3600 秒
+	Escape uint16				// 可选。非 0 表示 Callback 的 Params 支持转义符
+	DetectMime uint16			// 可选。非 0 表示在服务端自动检测文件内容的 MimeType
+}
+
+func (this *PutPolicy) Token() (uptoken string)
+
+type GetPolicy struct {
+    Scope string				// 格式是 domainPattern/keyPattern，没有默认值，用 */* 授权粒度过大，用 */key 比较合适。
+    Expires uint32				// 可选。默认是 3600 秒
+}
+
+func (this *GetPolicy) Token() (dntoken string)
 ```
 
 范围：仅在服务端使用
