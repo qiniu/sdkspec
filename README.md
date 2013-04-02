@@ -26,21 +26,6 @@ var SECRET_KEY string
 范围：仅在服务端使用
 
 
-## API请求授权（digest auth）
-
-```{go}
-package "qiniu/api/auth/digest"
-
-type Client struct {
-	...
-}
-
-func New() Client
-```
-
-范围：仅在服务端使用
-
-
 ## 存储API（rs）
 
 ```{go}
