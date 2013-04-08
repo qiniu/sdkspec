@@ -17,7 +17,6 @@
 package "qiniu/api/conf"
 
 var UP_HOST string
-var IO_HOST string
 var RS_HOST string
 
 var ACCESS_KEY string
