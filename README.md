@@ -18,6 +18,7 @@ package "qiniu/api/conf"
 
 var UP_HOST string
 var RS_HOST string
+var RSF_HOST string
 
 var ACCESS_KEY string
 var SECRET_KEY string // 不要在客户端初始化该变量
@@ -81,6 +82,39 @@ func (this Client) BatchCopy(entries []EntryPathPair) (rets []BatchItemRet, err 
 
 范围：仅在服务端使用
 
+## 获取存储列表API（rsf）
+
+```{go}
+package "qiniu/api/rsf"
+
+type Client struct {
+	...
+}
+
+func New() Client
+
+type DumpItem struct {
+	Fsize    int64 
+	Time     int64 
+	Name     string
+	Hash     string
+	Mime     string
+	Customer string
+}
+
+type DumpRet struct {
+	Marker string    //可选，如果当前列表已经到了最后就不会返回此项
+	Items  []DumpItem
+}
+
+// bucketName 必选，为空间名字
+// prefix 可选，为想要列出的资源前缀，没有的情况下表示所有
+// markerIn 可选，前一次请求返回的Marker，用来继续查询上次请求的后续资源列表
+// limit 可选，此次获取资源列表的最大条目数
+func (this Client) ListPrefix(bucketName, prefix, markerIn string, limit int) (ret DumpRet, err error)
+```
+
+范围：仅在服务端使用
 
 ## 生成上传/下载授权凭证（uptoken/dntoken）
 
