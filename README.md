@@ -9,7 +9,7 @@ title: SDK 规格规范 | 七牛云存储
 **文档大纲**
 
 - [语言差异性](#langdiff)
-- [服务端配置（conf）](#conf)
+- [全局配置（conf）](#conf)
 - [资源操作（rs）](#rs)
 - [生成上传/下载授权凭证（uptoken/dntoken）](#rs-token)
 - [上传/下载（io）](#io)
@@ -30,7 +30,7 @@ title: SDK 规格规范 | 七牛云存储
 
 <a name="conf"></a>
 
-## 服务端配置（conf）
+## 全局配置（conf）
 
 ```{go}
 package "qiniu/api/conf"
