@@ -2,6 +2,8 @@
 title: SDK 规格规范 | 七牛云存储
 ---
 
+# SDK 规格规范
+
 [![Qiniu Logo](http://qiniutek.com/images/logo-2.png)](http://qiniu.com/)
 
 **文档大纲**
@@ -17,7 +19,7 @@ title: SDK 规格规范 | 七牛云存储
 
 <a name="langdiff"></a>
 
-# 语言差异性
+## 语言差异性
 
 - 命名风格：不同语言可以有不同的命名风格。本规范主要按类 Golang 风格进行描述。
 - 名字空间：有的语言没有 package（namespace），通常通过名字前缀来表达。
@@ -28,7 +30,7 @@ title: SDK 规格规范 | 七牛云存储
 
 <a name="conf"></a>
 
-# 服务端配置（conf）
+## 服务端配置（conf）
 
 ```{go}
 package "qiniu/api/conf"
@@ -45,7 +47,7 @@ var SECRET_KEY string // 不要在客户端初始化该变量
 
 <a name="rs"></a>
 
-# 资源操作（rs）
+## 资源操作（rs）
 
 ```{go}
 package "qiniu/api/rs"
@@ -103,7 +105,7 @@ func (this Client) BatchCopy(entries []EntryPathPair) (rets []BatchItemRet, err 
 
 <a name="rs-token"></a>
 
-# 生成上传/下载授权凭证（uptoken/dntoken）
+## 生成上传/下载授权凭证（uptoken/dntoken）
 
 ```{go}
 package "qiniu/api/rs"
@@ -135,7 +137,7 @@ func (this *GetPolicy) Token() (dntoken string)
 
 <a name="io"></a>
 
-# 上传/下载（io）
+## 上传/下载（io）
 
 ```{go}
 package "qiniu/api/io"
@@ -166,7 +168,7 @@ func GetUrl(domain string, key string, dntoken string) (downloadUrl string)
 
 <a name="resumable-io"></a>
 
-# 断点续上传（resumable io）
+## 断点续上传（resumable io）
 
 ```{go}
 package "qiniu/api/resumable/io"
@@ -219,7 +221,7 @@ func SetSettings(settings *Settings)
 
 <a name="fop"></a>
 
-# 数据处理（fop）
+## 数据处理（fop）
 
 ```{go}
 package "qiniu/api/fop"
