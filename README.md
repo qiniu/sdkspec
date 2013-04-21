@@ -4,8 +4,6 @@ title: SDK 规格规范 | 七牛云存储
 
 # SDK 规格规范
 
-[![Qiniu Logo](http://qiniutek.com/images/logo-2.png)](http://qiniu.com/)
-
 **文档大纲**
 
 - [语言差异性](#langdiff)
