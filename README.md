@@ -1,33 +1,51 @@
-# Qiniu Resource (Cloud) Storage SDK Specification
+---
+title: SDK 规格规范 | 七牛云存储
+---
 
 [![Qiniu Logo](http://qiniutek.com/images/logo-2.png)](http://qiniu.com/)
 
-## 语言差异性
+**文档大纲**
 
-- 命名风格：不同语言可以有不同的命名风格。本规范主要按类 Golang 风格进行描述（但不完全是）。
+- [语言差异性](#langdiff)
+- [服务端配置（conf）](#conf)
+- [资源操作（rs）](#rs)
+- [生成上传/下载授权凭证（uptoken/dntoken）](#rs-token)
+- [上传/下载（io）](#io)
+- [断点续上传（resumable io）](#resumable-io)
+- [数据处理（fop）](#fop)
+
+
+<a name="langdiff"></a>
+
+# 语言差异性
+
+- 命名风格：不同语言可以有不同的命名风格。本规范主要按类 Golang 风格进行描述。
 - 名字空间：有的语言没有 package（namespace），通常通过名字前缀来表达。
 - 构造函数：有的语言没有构造函数，通过 NewXXX 函数来表达。本规范因为按 Golang 风格，构造函数也是用 NewXXX 进行描述。
 - 函数重载：有的语言没有函数重载，通过 XXXYYY 形式命名，其中 XXX 是功能，YYY 是不同重载函数的区分段。支持函数重载的语言没有 YYY 段。
 - 函数多返回值：有的语言不支持返回多个返回值，也不支持返回元组（tuple）。
 
 
-## 服务端配置（conf）
+<a name="conf"></a>
+
+# 服务端配置（conf）
 
 ```{go}
 package "qiniu/api/conf"
 
 var UP_HOST string
-var IO_HOST string
 var RS_HOST string
 
 var ACCESS_KEY string
 var SECRET_KEY string // 不要在客户端初始化该变量
 ```
 
-范围：服务端和客户端共用
+范围：客户端和服务端
 
 
-## 存储API（rs）
+<a name="rs"></a>
+
+# 资源操作（rs）
 
 ```{go}
 package "qiniu/api/rs"
@@ -83,7 +101,9 @@ func (this Client) BatchCopy(entries []EntryPathPair) (rets []BatchItemRet, err 
 范围：仅在服务端使用
 
 
-## 生成上传/下载授权凭证（uptoken/dntoken）
+<a name="rs-token"></a>
+
+# 生成上传/下载授权凭证（uptoken/dntoken）
 
 ```{go}
 package "qiniu/api/rs"
@@ -113,7 +133,9 @@ func (this *GetPolicy) Token() (dntoken string)
 范围：仅在服务端使用
 
 
-## 上传/下载（io）
+<a name="io"></a>
+
+# 上传/下载（io）
 
 ```{go}
 package "qiniu/api/io"
@@ -142,7 +164,9 @@ func GetUrl(domain string, key string, dntoken string) (downloadUrl string)
 范围：客户端和服务端
 
 
-## 断点续上传（resumable io）
+<a name="resumable-io"></a>
+
+# 断点续上传（resumable io）
 
 ```{go}
 package "qiniu/api/resumable/io"
@@ -193,7 +217,9 @@ func SetSettings(settings *Settings)
 范围：客户端和服务端
 
 
-## 数据处理API（fop）
+<a name="fop"></a>
+
+# 数据处理（fop）
 
 ```{go}
 package "qiniu/api/fop"
