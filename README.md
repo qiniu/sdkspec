@@ -48,7 +48,7 @@ type Entry struct {
 	Fsize    int64
 	PutTime  int64
 	MimeType string
-	Enduser  string
+	EndUser  string
 }
 
 // batch
@@ -103,7 +103,7 @@ type ListItem struct {
 	Fsize    int64
 	PutTime  int64
 	MimeType string
-	Enduser  string
+	EndUser  string
 }
 ```
 
@@ -122,7 +122,7 @@ type PutPolicy struct {
 	ReturnUrl	 string // 可选
 	ReturnBody	 string // 可选
 	AsyncOps	 string // 可选
-	Enduser		 string // 可选
+	EndUser		 string // 可选
 	Expires		 uint32 // 可选。默认是 3600 秒
 }
 
