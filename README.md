@@ -150,6 +150,9 @@ const UNDEFINED_KEY = "?"
 
 type PutExtra struct {
 	Params		 map[string]string
+	MimeType	 string
+	Crc32		 uint32
+	CheckCrc	 uint32 // 若 CheckCrc 为 1，且 Crc32 = 0，那么 PutFile 会自动计算 Crc32
 }
 
 type PutRet struct {
@@ -185,6 +188,7 @@ type BlkputRet struct {
 
 type PutExtra struct {
 	Params		 map[string]string
+	MimeType	 string
 	ChunkSize	 int		 // 可选。每次上传的Chunk大小
 	TryTimes	 int		 // 可选。尝试次数
 	Progresses	 []BlkputRet // 可选。上传进度
