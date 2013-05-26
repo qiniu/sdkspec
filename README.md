@@ -1,4 +1,4 @@
-# Qiniu Resource (Cloud) Storage SDK Specification
+# Qiniu Cloud Storage SDK Specification
 
 [![Qiniu Logo](http://qiniutek.com/images/logo-2.png)](http://qiniu.com/)
 
@@ -18,6 +18,7 @@ package "qiniu/api/conf"
 
 var UP_HOST string
 var RS_HOST string
+var RSF_HOST string
 
 var ACCESS_KEY string
 var SECRET_KEY string // 不要在客户端初始化该变量
@@ -47,7 +48,7 @@ type Entry struct {
 	Fsize    int64
 	PutTime  int64
 	MimeType string
-	Customer string
+	Enduser  string
 }
 
 // batch
@@ -82,28 +83,54 @@ func (this Client) BatchCopy(entries []EntryPathPair) (rets []BatchItemRet, err 
 范围：仅在服务端使用
 
 
+## 存储高级API（rsf）
+
+```{go}
+package "qiniu/api/rsf"
+
+type Client struct {
+	...
+}
+
+func New() Client
+
+func (this Client) ListPrefix(
+	bucket, prefix, markerIn string, limit int) (entries []ListItem, markerOut string, err error)
+
+type ListItem struct {
+	Key		 string
+	Hash     string
+	Fsize    int64
+	PutTime  int64
+	MimeType string
+	Enduser  string
+}
+```
+
+范围：仅在服务端使用
+
+
 ## 生成上传/下载授权凭证（uptoken/dntoken）
 
 ```{go}
 package "qiniu/api/rs"
 
 type PutPolicy struct {
-	Scope string				// 必选项。可以是 bucketName 或者 bucketName:key
-	CallbackUrl string			// 可选
-	CallbackBodyType string		// 可选
-	Customer string				// 可选
-	AsyncOps string				// 可选
-	ReturnBody string			// 可选
-	Expires uint32				// 可选。默认是 3600 秒
-	Escape uint16				// 可选。非 0 表示 Callback 的 Params 支持转义符
-	DetectMime uint16			// 可选。非 0 表示在服务端自动检测文件内容的 MimeType
+	Scope		 string // 必选。可以是 bucketName 或者 bucketName:key
+	CallbackUrl	 string // 可选
+	CallbackBody string // 可选
+	ReturnUrl	 string // 可选
+	ReturnBody	 string // 可选
+	AsyncOps	 string // 可选
+	Enduser		 string // 可选
+	Expires		 uint32 // 可选。默认是 3600 秒
 }
 
 func (this *PutPolicy) Token() (uptoken string)
 
 type GetPolicy struct {
-    Scope string				// 格式是 domainPattern/keyPattern，没有默认值，用 */* 授权粒度过大，用 */key 比较合适。
-    Expires uint32				// 可选。默认是 3600 秒
+    Scope		 string // 必选。格式：domainPattern/keyPattern。用 */* 权限过大，用 */key 更合适
+    Expires		 uint32 // 可选。默认是 3600 秒
 }
 
 func (this *GetPolicy) Token() (dntoken string)
@@ -119,15 +146,14 @@ package "qiniu/api/io"
 
 // upload
 
+const UNDEFINED_KEY = "?"
+
 type PutExtra struct {
-	CallbackParams	string	// 当 uptoken 指定了 CallbackUrl，则 CallbackParams 必须非空
-	Bucket			string	// 当前是必选项，但未来会去掉
-	CustomMeta		string	// 可选。用户自定义 Meta，不能超过 256 字节
-	MimeType		string	// 可选。在 uptoken 没有指定 DetectMime 时，用户客户端可自己指定 MimeType
+	Params		 map[string]string
 }
 
 type PutRet struct {
-	Hash			string	// 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构 
+	Hash		 string // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
 }
 
 func Put(ret interface{}, uptoken string, key string, body io.Reader, extra *PutExtra) (err error)
@@ -148,28 +174,26 @@ package "qiniu/api/resumable/io"
 
 // upload
 
+const UNDEFINED_KEY = "?"
+
 type BlkputRet struct {
 	Ctx      string `json:"ctx"`
 	Checksum string `json:"checksum"`
 	Crc32    uint32 `json:"crc32"`
 	Offset   uint32 `json:"offset"`
-	Host     string `json:"host"`
 }
 
 type PutExtra struct {
-	CallbackParams	string	// 当 uptoken 指定了 CallbackUrl，则 CallbackParams 必须非空
-	Bucket			string	// 当前是必选项，但未来会去掉
-	CustomMeta		string	// 可选。用户自定义 Meta，不能超过 256 字节
-	MimeType		string	// 可选。在 uptoken 没有指定 DetectMime 时，用户客户端可自己指定 MimeType
-	ChunkSize		int		// 可选。每次上传的Chunk大小
-	TryTimes		int		// 可选。尝试次数
-	Progresses		[]BlkputRet // 可选。上传进度
-	Notify			func(blkIdx int, blkSize int, ret *BlkputRet) // 可选。进度提示（注意多个block是并行传输的）
-	NotifyErr		func(blkIdx int, blkSize int, err error)
+	Params		 map[string]string
+	ChunkSize	 int		 // 可选。每次上传的Chunk大小
+	TryTimes	 int		 // 可选。尝试次数
+	Progresses	 []BlkputRet // 可选。上传进度
+	Notify		 func(blkIdx int, blkSize int, ret *BlkputRet) // 可选。进度提示（注意多个block是并行传输的）
+	NotifyErr	 func(blkIdx int, blkSize int, err error)
 }
 
 type PutRet struct {
-	Hash			string	// 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构 
+	Hash		 string		 // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构 
 }
 
 func Put(ret interface{}, uptoken string, key string, f io.ReaderAt, fsize int64, extra *PutExtra) (err error)
