@@ -83,33 +83,6 @@ func (this Client) BatchCopy(entries []EntryPathPair) (rets []BatchItemRet, err 
 范围：仅在服务端使用
 
 
-## 存储高级API（rsf）
-
-```{go}
-package "qiniu/api/rsf"
-
-type Client struct {
-	...
-}
-
-func New() Client
-
-func (this Client) ListPrefix(
-	bucket, prefix, markerIn string, limit int) (entries []ListItem, markerOut string, err error)
-
-type ListItem struct {
-	Key		 string
-	Hash     string
-	Fsize    int64
-	PutTime  int64
-	MimeType string
-	EndUser  string
-}
-```
-
-范围：仅在服务端使用
-
-
 ## 生成上传/下载授权凭证（uptoken/dntoken）
 
 ```{go}
@@ -134,6 +107,33 @@ type GetPolicy struct {
 }
 
 func (this *GetPolicy) Token() (dntoken string)
+```
+
+范围：仅在服务端使用
+
+
+## 存储高级API（rsf）
+
+```{go}
+package "qiniu/api/rsf"
+
+type Client struct {
+	...
+}
+
+func New() Client
+
+func (this Client) ListPrefix(
+	bucket, prefix, markerIn string, limit int) (entries []ListItem, markerOut string, err error)
+
+type ListItem struct {
+	Key		 string
+	Hash     string
+	Fsize    int64
+	PutTime  int64
+	MimeType string
+	EndUser  string
+}
 ```
 
 范围：仅在服务端使用
