@@ -102,11 +102,11 @@ type PutPolicy struct {
 func (this *PutPolicy) Token() (uptoken string)
 
 type GetPolicy struct {
-    Scope		 string // 必选。格式：domainPattern/keyPattern。用 */* 权限过大，用 */key 更合适
-    Expires		 uint32 // 可选。默认是 3600 秒
+	Scope		 string // 必选。格式：domainPattern/keyPattern。用 */* 权限过大，用 */key 更合适
+	Expires		 uint32 // 可选。默认是 3600 秒
 }
 
-func (this *GetPolicy) Token() (dntoken string)
+func (this GetPolicy) MakeRequest(baseUrl string) (privateUrl string)
 ```
 
 范围：仅在服务端使用
@@ -161,10 +161,6 @@ type PutRet struct {
 
 func Put(ret interface{}, uptoken string, key string, body io.Reader, extra *PutExtra) (err error)
 func PutFile(ret interface{}, uptoken string, key string, localFile string, extra *PutExtra) (err error)
-
-// download
-
-func GetUrl(domain string, key string, dntoken string) (downloadUrl string)
 ```
 
 范围：客户端和服务端
