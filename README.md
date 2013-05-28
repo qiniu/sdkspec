@@ -107,6 +107,8 @@ type GetPolicy struct {
 }
 
 func (this GetPolicy) MakeRequest(baseUrl string) (privateUrl string)
+
+func MakeBaseUrl(domain, key string) (baseUrl string)
 ```
 
 范围：仅在服务端使用
