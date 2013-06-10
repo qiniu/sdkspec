@@ -27,6 +27,20 @@ var SECRET_KEY string // 不要在客户端初始化该变量
 范围：服务端和客户端共用
 
 
+## 签名认证（conf）
+
+```{go}
+package "qiniu/api/auth/digest"
+
+type Mac struct {
+	AccessKey string
+	SecretKey []byte
+}
+```
+
+范围：仅在服务端使用
+
+
 ## 存储API（rs）
 
 ```{go}
@@ -36,7 +50,7 @@ type Client struct {
 	...
 }
 
-func New() Client
+func New(mac *digest.Mac = nil) Client
 
 func (this Client) Stat(bucket, key string) (entry Entry, err error)
 func (this Client) Delete(bucket, key string) (err error)
@@ -99,13 +113,13 @@ type PutPolicy struct {
 	Expires		 uint32 // 可选。默认是 3600 秒
 }
 
-func (this *PutPolicy) Token() (uptoken string)
+func (this *PutPolicy) Token(mac *digest.Mac = nil) (uptoken string)
 
 type GetPolicy struct {
 	Expires		 uint32 // 可选。默认是 3600 秒
 }
 
-func (this GetPolicy) MakeRequest(baseUrl string) (privateUrl string)
+func (this GetPolicy) MakeRequest(baseUrl string, mac *digest.Mac = nil) (privateUrl string)
 
 func MakeBaseUrl(domain, key string) (baseUrl string)
 ```
@@ -122,7 +136,7 @@ type Client struct {
 	...
 }
 
-func New() Client
+func New(mac *digest.Mac = nil) Client
 
 func (this Client) ListPrefix(
 	bucket, prefix, markerIn string, limit int) (entries []ListItem, markerOut string, err error)
