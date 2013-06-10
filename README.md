@@ -97,7 +97,7 @@ func (this Client) BatchCopy(entries []EntryPathPair) (rets []BatchItemRet, err 
 范围：仅在服务端使用
 
 
-## 生成上传/下载授权凭证（uptoken/dntoken）
+## 上传/下载授权凭证（uptoken/dntoken）
 
 ```{go}
 package "qiniu/api/rs"
