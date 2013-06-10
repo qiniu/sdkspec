@@ -2,7 +2,7 @@
 
 ### v1.0.2
 
-2013-06-10
+2013-06-10 issue [#21](https://github.com/qiniu/sdkspec/pull/21)
 
 - rs.GetPolicy 删除 Scope，也就是不再支持批量下载的授权。
 
