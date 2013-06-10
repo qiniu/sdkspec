@@ -27,7 +27,7 @@ var SECRET_KEY string // 不要在客户端初始化该变量
 范围：服务端和客户端共用
 
 
-## 签名认证（conf）
+## 签名认证（auth/digest）
 
 ```{go}
 package "qiniu/api/auth/digest"
