@@ -102,7 +102,6 @@ type PutPolicy struct {
 func (this *PutPolicy) Token() (uptoken string)
 
 type GetPolicy struct {
-	Scope		 string // 必选。格式：domainPattern/keyPattern。用 */* 权限过大，用 */key 更合适
 	Expires		 uint32 // 可选。默认是 3600 秒
 }
 
