@@ -154,7 +154,7 @@ type ListItem struct {
 范围：仅在服务端使用
 
 
-## 上传/下载（io）
+## 上传（io）
 
 ```{go}
 package "qiniu/api/io"
