@@ -44,7 +44,7 @@ gist并不会根据文件后缀名来判断类型，但是他会以几种主流�
 
 引用文件里面的一个片段
 
-	@gist(relative/path/to/file#author)
+	@gist(relative/path/to/file#anthor)
 
 引用一整个文件
 
