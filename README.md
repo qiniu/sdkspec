@@ -163,19 +163,14 @@ package "qiniu/api/io"
 
 const UNDEFINED_KEY = "?"
 
-type PutExtra struct {
-	Params		 map[string]string
-	MimeType	 string
-	Crc32		 uint32
-	CheckCrc	 uint32 // 若 CheckCrc 为 1，且 Crc32 = 0，那么 PutFile 会自动计算 Crc32
-}
-
 type PutRet struct {
 	Hash		 string // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
 }
 
-func Put(ret interface{}, uptoken string, key string, body io.Reader, extra *PutExtra) (err error)
-func PutFile(ret interface{}, uptoken string, key string, localFile string, extra *PutExtra) (err error)
+func Put(ret interface{}, uptoken string, key string, body io.Reader, params map[string]string) (err error)
+
+func PutFile(ret interface{}, uptoken string, key string, localFile string, params map[string]string) (err error)
+
 ```
 
 范围：客户端和服务端
@@ -246,7 +241,7 @@ type ImageView struct {
 	Format string	// 输出格式，如jpg, gif, png, tif等等
 }
 
-func (this *ImageView) MakeRequest(url string) (imageViewUrl string)
+func (this ImageView) MakeRequest(url string) (imageViewUrl string)
 
 // imageMogr
 
@@ -254,7 +249,7 @@ type ImageMogrify struct {
 	...				// 待标准化
 }
 
-func (this *ImageMogrify) MakeRequest(url string) (imageMogrUrl string)
+func (this ImageMogrify) MakeRequest(url string) (imageMogrUrl string)
 
 // imageInfo
 
