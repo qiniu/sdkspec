@@ -171,7 +171,8 @@ type PutExtra struct {
 }
 
 type PutRet struct {
-	Hash		 string // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
+	Hash		string // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
+	Key		string // 如果传入的 key == UNDEFINED_KEY，则服务端返回 key
 }
 
 func Put(
@@ -206,12 +207,13 @@ type PutExtra struct {
 	ChunkSize	int		 // 可选。每次上传的Chunk大小
 	TryTimes	int		 // 可选。尝试次数
 	Progresses	[]BlkputRet // 可选。上传进度
-	Notify		func(blkIdx int, blkSize int, ret *BlkputRet) // 可选。进度提示（注意blk是并行传输的）
+	Notify		func(blkIdx int, blkSize int, ret *BlkputRet) // 进度提示。注意blk是并行传输的
 	NotifyErr	func(blkIdx int, blkSize int, err error)
 }
 
 type PutRet struct {
-	Hash		 string		 // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构 
+	Key		string // 如果传入的 key == UNDEFINED_KEY，则服务端返回 key
+	Hash		string // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
 }
 
 func Put(
