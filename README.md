@@ -215,7 +215,8 @@ type PutRet struct {
 }
 
 func Put(
-	ret interface{}, uptoken string, key string, f io.ReaderAt, fsize int64, extra *PutExtra) (err error)
+	ret interface{}, uptoken string,
+	key string, f io.ReaderAt, fsize int64, extra *PutExtra) (err error)
 
 func PutFile(
 	ret interface{}, uptoken string, key string, localFile string, extra *PutExtra) (err error)
