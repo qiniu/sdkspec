@@ -201,21 +201,24 @@ type BlkputRet struct {
 }
 
 type PutExtra struct {
-	Params		 map[string]string
-	MimeType	 string
-	ChunkSize	 int		 // 可选。每次上传的Chunk大小
-	TryTimes	 int		 // 可选。尝试次数
-	Progresses	 []BlkputRet // 可选。上传进度
-	Notify		 func(blkIdx int, blkSize int, ret *BlkputRet) // 可选。进度提示（注意多个block是并行传输的）
-	NotifyErr	 func(blkIdx int, blkSize int, err error)
+	Params		map[string]string // 用户自定义参数，key必须以 "x:" 开头
+	MimeType	string
+	ChunkSize	int		 // 可选。每次上传的Chunk大小
+	TryTimes	int		 // 可选。尝试次数
+	Progresses	[]BlkputRet // 可选。上传进度
+	Notify		func(blkIdx int, blkSize int, ret *BlkputRet) // 可选。进度提示（注意blk是并行传输的）
+	NotifyErr	func(blkIdx int, blkSize int, err error)
 }
 
 type PutRet struct {
 	Hash		 string		 // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构 
 }
 
-func Put(ret interface{}, uptoken string, key string, f io.ReaderAt, fsize int64, extra *PutExtra) (err error)
-func PutFile(ret interface{}, uptoken string, key string, localFile string, extra *PutExtra) (err error)
+func Put(
+	ret interface{}, uptoken string, key string, f io.ReaderAt, fsize int64, extra *PutExtra) (err error)
+
+func PutFile(
+	ret interface{}, uptoken string, key string, localFile string, extra *PutExtra) (err error)
 
 func BlockCount(fsize int64) int
 
