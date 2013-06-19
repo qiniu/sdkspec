@@ -142,7 +142,7 @@ func (this Client) ListPrefix(
 	bucket, prefix, marker string, limit int) (entries []ListItem, markerOut string, err error)
 
 type ListItem struct {
-	Key		 string
+	Key      string
 	Hash     string
 	Fsize    int64
 	PutTime  int64
@@ -171,8 +171,8 @@ type PutExtra struct {
 }
 
 type PutRet struct {
-	Hash		string // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
-	Key		string // 如果传入的 key == UNDEFINED_KEY，则服务端返回 key
+	Hash    string // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
+	Key     string // 如果传入的 key == UNDEFINED_KEY，则服务端返回 key
 }
 
 func Put(
@@ -212,8 +212,8 @@ type PutExtra struct {
 }
 
 type PutRet struct {
-	Key		string // 如果传入的 key == UNDEFINED_KEY，则服务端返回 key
-	Hash		string // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
+	Hash    string // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
+	Key     string // 如果传入的 key == UNDEFINED_KEY，则服务端返回 key
 }
 
 func Put(
