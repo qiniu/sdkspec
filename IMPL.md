@@ -3,11 +3,13 @@
 
 ## 目录结构
 
+
+```
 docs/			- 文档所在目录
 README.md		- 项目说明文档
 CHANGELOG.md	- 更新日志
 .travis.yml		- Travis-CI 配置文件
-
+```
 
 ## Travis-CI
 
