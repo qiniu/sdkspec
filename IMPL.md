@@ -63,4 +63,4 @@ before_script:
 
 ## User-Agent 配置
 
-- 建议 http 请求的 User-Agent 用 SDK名+版本。比如 "php-sdk v6.0.0"
+- 建议 http 请求的 User-Agent 用 SDK名+版本。比如 "qiniu php-sdk v6.0.0"
