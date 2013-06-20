@@ -46,5 +46,5 @@
 
 ## 版本管理
 
-根据 master 分支下的 CHANGELOG 确定当前版本。
-
+- 根据 master 分支下的 CHANGELOG 确定当前版本。
+- 智能跳转到当前版本。比如访问 `/guide/`，会自动跳转到 `/guide/v<N>/` 这个 url。
