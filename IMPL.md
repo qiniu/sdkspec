@@ -59,3 +59,8 @@ before_script:
 - io: 普通上传相关 (对于不支持名字空间的语言来说，建议用 `Qiniu_RS_` 前缀做名字空间)
 - resumable.io: 断点续上传相关 (对于不支持名字空间的语言来说，建议用 `Qiniu_RS_` 前缀做名字空间)
 - fop: 数据处理相关 (对于不支持名字空间的语言来说，建议用 `Qiniu_FOP_` 前缀做名字空间)
+
+
+## User-Agent 配置
+
+- 建议 http 请求的 User-Agent 用 SDK名+版本。比如 "php-sdk v6.0.0"
