@@ -46,3 +46,15 @@ before_script:
 - 初步整理了 sdk 使用文档。
 ```
 
+
+## 框架结构
+
+- conf：配置文件相关
+- auth.digest: 数字签名相关
+- rpc|http: 网络请求相关
+- rs: 上传下载凭证、文件管理相关
+- rsf: 文件列表相关
+- io: 普通上传相关
+- resumable.io: 断点续上传相关
+- fop: 数据处理相关
+
