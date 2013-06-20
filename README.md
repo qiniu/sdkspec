@@ -169,7 +169,7 @@ type PutExtra struct {
 	Crc32		 uint32
 	CheckCrc	 uint32
 		// CheckCrc == 0: 表示不进行 crc32 校验
-		// CheckCrc == 1: 对于 Put 是非法参数；对于 PutFile 会自动计算 crc32 值
+		// CheckCrc == 1: 对于 Put 等同于 CheckCrc = 2；对于 PutFile 会自动计算 crc32 值
 		// CheckCrc == 2: 表示进行 crc32 校验，且 crc32 值就是上面的 Crc32 变量
 }
 
