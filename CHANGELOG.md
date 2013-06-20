@@ -2,9 +2,10 @@
 
 ### v6.0.0
 
-2013-06-21 issue [#27](https://github.com/qiniu/sdkspec/pull/27), [#28](https://github.com/qiniu/sdkspec/pull/28)
+2013-06-21 issue [#27](https://github.com/qiniu/sdkspec/pull/27), [#28](https://github.com/qiniu/sdkspec/pull/28), [#29](https://github.com/qiniu/sdkspec/pull/29)
 
 - 增加 [SDK 实现规范](https://github.com/qiniu/sdkspec/blob/develop/IMPL.md)
+- 增加 [docs.qiniu.com 实现规范](https://github.com/qiniu/sdkspec/blob/develop/DOCS.md)
 - 增加 conf.USER_AGENT 变量
 
 
