@@ -1,5 +1,17 @@
 ## CHANGE LOG
 
+### v1.0.3
+
+2013-06-20 issue [#25](https://github.com/qiniu/sdkspec/pull/25)
+
+- io.PutExtra
+  - Crc32        uint32
+  - CheckCrc     uint32
+    // CheckCrc == 0: 表示不进行 crc32 校验
+    // CheckCrc == 1: 对于 Put 等同于 CheckCrc = 2；对于 PutFile 会自动计算 crc32 值
+    // CheckCrc == 2: 表示进行 crc32 校验，且 crc32 值就是上面的 Crc32 变量
+
+
 ### v1.0.2
 
 2013-06-10 issue [#21](https://github.com/qiniu/sdkspec/pull/21), [#22](https://github.com/qiniu/sdkspec/pull/22)
