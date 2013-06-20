@@ -97,7 +97,7 @@ func (this Client) BatchCopy(entries []EntryPathPair) (rets []BatchItemRet, err 
 范围：仅在服务端使用
 
 
-## 生成上传/下载授权凭证（uptoken/dntoken）
+## 上传/下载授权凭证（uptoken/dntoken）
 
 ```{go}
 package "qiniu/api/rs"
@@ -139,10 +139,10 @@ type Client struct {
 func New(mac *digest.Mac = nil) Client
 
 func (this Client) ListPrefix(
-	bucket, prefix, markerIn string, limit int) (entries []ListItem, markerOut string, err error)
+	bucket, prefix, marker string, limit int) (entries []ListItem, markerOut string, err error)
 
 type ListItem struct {
-	Key		 string
+	Key      string
 	Hash     string
 	Fsize    int64
 	PutTime  int64
@@ -154,7 +154,7 @@ type ListItem struct {
 范围：仅在服务端使用
 
 
-## 上传/下载（io）
+## 上传（io）
 
 ```{go}
 package "qiniu/api/io"
@@ -164,18 +164,25 @@ package "qiniu/api/io"
 const UNDEFINED_KEY = "?"
 
 type PutExtra struct {
-	Params		 map[string]string
-	MimeType	 string
+	Params		 map[string]string // 用户自定义参数，key必须以 "x:" 开头
+	MimeType	 string // 可选
 	Crc32		 uint32
-	CheckCrc	 uint32 // 若 CheckCrc 为 1，且 Crc32 = 0，那么 PutFile 会自动计算 Crc32
+	CheckCrc	 uint32
+		// CheckCrc == 0: 表示不进行 crc32 校验
+		// CheckCrc == 1: 对于 Put 等同于 CheckCrc = 2；对于 PutFile 会自动计算 crc32 值
+		// CheckCrc == 2: 表示进行 crc32 校验，且 crc32 值就是上面的 Crc32 变量
 }
 
 type PutRet struct {
-	Hash		 string // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
+	Hash    string // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
+	Key     string // 如果传入的 key == UNDEFINED_KEY，则服务端返回 key
 }
 
-func Put(ret interface{}, uptoken string, key string, body io.Reader, extra *PutExtra) (err error)
-func PutFile(ret interface{}, uptoken string, key string, localFile string, extra *PutExtra) (err error)
+func Put(
+	ret interface{}, uptoken string, key string, body io.Reader, extra *PutExtra) (err error)
+
+func PutFile(
+	ret interface{}, uptoken string, key string, localFile string, extra *PutExtra) (err error)
 ```
 
 范围：客户端和服务端
@@ -198,21 +205,26 @@ type BlkputRet struct {
 }
 
 type PutExtra struct {
-	Params		 map[string]string
-	MimeType	 string
-	ChunkSize	 int		 // 可选。每次上传的Chunk大小
-	TryTimes	 int		 // 可选。尝试次数
-	Progresses	 []BlkputRet // 可选。上传进度
-	Notify		 func(blkIdx int, blkSize int, ret *BlkputRet) // 可选。进度提示（注意多个block是并行传输的）
-	NotifyErr	 func(blkIdx int, blkSize int, err error)
+	Params		map[string]string // 用户自定义参数，key必须以 "x:" 开头
+	MimeType	string
+	ChunkSize	int		 // 可选。每次上传的Chunk大小
+	TryTimes	int		 // 可选。尝试次数
+	Progresses	[]BlkputRet // 可选。上传进度
+	Notify		func(blkIdx int, blkSize int, ret *BlkputRet) // 进度提示。注意blk是并行传输的
+	NotifyErr	func(blkIdx int, blkSize int, err error)
 }
 
 type PutRet struct {
-	Hash		 string		 // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构 
+	Hash    string // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
+	Key     string // 如果传入的 key == UNDEFINED_KEY，则服务端返回 key
 }
 
-func Put(ret interface{}, uptoken string, key string, f io.ReaderAt, fsize int64, extra *PutExtra) (err error)
-func PutFile(ret interface{}, uptoken string, key string, localFile string, extra *PutExtra) (err error)
+func Put(
+	ret interface{}, uptoken string,
+	key string, f io.ReaderAt, fsize int64, extra *PutExtra) (err error)
+
+func PutFile(
+	ret interface{}, uptoken string, key string, localFile string, extra *PutExtra) (err error)
 
 func BlockCount(fsize int64) int
 
