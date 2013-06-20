@@ -16,6 +16,8 @@
 ```{go}
 package "qiniu/api/conf"
 
+var USER_AGENT string // 请求的 User-Agent 值，比如 "qiniu php-sdk v6.0.0"
+
 var UP_HOST string
 var RS_HOST string
 var RSF_HOST string
