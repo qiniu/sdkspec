@@ -1,5 +1,12 @@
 ## CHANGE LOG
 
+### v6.0.0
+
+2013-06-21 issue [#27](https://github.com/qiniu/sdkspec/pull/27)
+
+- 增加 [SDK 实现规范](https://github.com/qiniu/sdkspec/blob/develop/IMPL.md)
+
+
 ### v1.0.3
 
 2013-06-20 issue [#25](https://github.com/qiniu/sdkspec/pull/25)
