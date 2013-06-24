@@ -282,20 +282,12 @@ type ImageInfoRet struct {
 type ImageInfo struct {}
 
 func (this ImageInfo) MakeRequest(url string) (imageInfoUrl string)
-func (this ImageInfo) Call(url string) (ret ImageInfoRet, err error)
 
 // exif
 
-type ExifValType struct {
-	Val string
-	Type int
-}
-
-type ExifRet map[string] ExifValType
 type Exif struct {}
 
 func (this Exif) MakeRequest(url string) (imageExifUrl string)
-func (this Exif) Call(url string) (ret ExifRet, err error)
 ```
 
 范围：客户端和服务端
