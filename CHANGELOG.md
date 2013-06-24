@@ -1,5 +1,12 @@
 ## CHANGE LOG
 
+### v6.0.1
+
+2013-06-24 issue [#30](https://github.com/qiniu/sdkspec/pull/30)
+
+- Remove fop.Call
+
+
 ### v6.0.0
 
 2013-06-21 issue [#27](https://github.com/qiniu/sdkspec/pull/27), [#28](https://github.com/qiniu/sdkspec/pull/28), [#29](https://github.com/qiniu/sdkspec/pull/29)
