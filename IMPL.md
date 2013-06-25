@@ -6,7 +6,7 @@
 
 ```
 docs/			- 文档所在目录
-tests/    - 单元测试目录，有的语言习惯叫 test 目录。这个建议遵循社区惯例。
+tests/  		- 单元测试目录，有的语言习惯叫 test 目录。这个建议遵循社区惯例。
 README.md		- 项目说明文档
 CHANGELOG.md	- 更新日志
 .travis.yml		- Travis-CI 配置文件
