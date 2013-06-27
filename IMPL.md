@@ -6,6 +6,7 @@
 
 ```
 docs/			- 文档所在目录
+tests/  		- 单元测试目录，有的语言习惯叫 test 目录。这个建议遵循社区惯例。
 README.md		- 项目说明文档
 CHANGELOG.md	- 更新日志
 .travis.yml		- Travis-CI 配置文件
@@ -22,6 +23,28 @@ before_script:
 ```
 
 然后在测试案例中通过 getenv("QINIU_ACCESS_KEY") 和 getenv("QINIU_SECRET_KEY") 获得 AccessKey/SecretKey。
+
+
+## 开发流程
+
+准备工作：
+
+1. fork qiniu 中的某个 sdk（比如叫 foo-sdk）
+2. git clone git@github.com:yourname/foo-sdk.git
+3. git remote add qiniu git@github.com:qiniu/foo-sdk.git
+4. git fetch qiniu
+
+开发流程：
+
+1. git checkout -b feature/yyyy qiniu/develop
+2. 开发 (如果qiniu/develop分支别人有merge内容进来，可以随时执行 git pull 合并)
+3. git commit -am "xxx"
+4. git push origin feature/yyyy
+5. 发起 pr
+
+其他一些细节：
+
+1. 如何同时开发多个feature。很简单：随时可以 git checkout feature/yyyy 到某个分支
 
 
 ## 更新日志
