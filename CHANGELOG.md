@@ -1,5 +1,13 @@
 ## CHANGE LOG
 
+### v6.0.2
+
+2013-06-27 issue [#31](https://github.com/qiniu/sdkspec/pull/31)
+
+- 对 `ListPrefix` 的规格说明进行规范
+- IMPL.doc 补充了“开发流程”的规范
+
+
 ### v6.0.1
 
 2013-06-24 issue [#30](https://github.com/qiniu/sdkspec/pull/30)
