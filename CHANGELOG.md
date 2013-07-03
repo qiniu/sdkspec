@@ -1,5 +1,12 @@
 ## CHANGE LOG
 
+### v6.0.3
+
+2013-07-02 issue [#32](https://github.com/qiniu/sdkspec/pull/32)
+
+- 引入 PutWithoutKey, PutFileWithoutKey
+
+
 ### v6.0.2
 
 2013-06-27 issue [#31](https://github.com/qiniu/sdkspec/pull/31)
