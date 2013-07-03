@@ -164,10 +164,6 @@ type ListItem struct {
 ```{go}
 package "qiniu/api/io"
 
-// upload
-
-const UNDEFINED_KEY = "?"
-
 type PutExtra struct {
 	Params		 map[string]string // 用户自定义参数，key必须以 "x:" 开头
 	MimeType	 string // 可选
@@ -186,8 +182,14 @@ type PutRet struct {
 func Put(
 	ret interface{}, uptoken string, key string, body io.Reader, extra *PutExtra) (err error)
 
+func PutWithoutKey(
+	ret interface{}, uptoken string, body io.Reader, extra *PutExtra) (err error)
+
 func PutFile(
 	ret interface{}, uptoken string, key string, localFile string, extra *PutExtra) (err error)
+
+func PutFileWithoutKey(
+	ret interface{}, uptoken string, localFile string, extra *PutExtra) (err error)
 ```
 
 范围：客户端和服务端
@@ -199,8 +201,6 @@ func PutFile(
 package "qiniu/api/resumable/io"
 
 // upload
-
-const UNDEFINED_KEY = "?"
 
 type BlkputRet struct {
 	Ctx      string `json:"ctx"`
@@ -228,8 +228,14 @@ func Put(
 	ret interface{}, uptoken string,
 	key string, f io.ReaderAt, fsize int64, extra *PutExtra) (err error)
 
+func PutWithoutKey(
+	ret interface{}, uptoken string, f io.ReaderAt, fsize int64, extra *PutExtra) (err error)
+
 func PutFile(
 	ret interface{}, uptoken string, key string, localFile string, extra *PutExtra) (err error)
+
+func PutFileWithoutKey(
+	ret interface{}, uptoken string, localFile string, extra *PutExtra) (err error)
 
 func BlockCount(fsize int64) int
 
