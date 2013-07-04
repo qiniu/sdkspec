@@ -156,6 +156,26 @@ type ListItem struct {
 }
 ```
 
+这个 `ListPrefix` 的标准用法如下：
+
+```{go}
+func listAll(rs rsf.Client, bucket, prefix string, limit int) {
+
+	var items []ListItem
+	var marker string
+	var err error
+	for err == nil {
+		items, marker, err = rs.ListPrefix(bucket, prefix, marker, limit)
+		for _, item := range items {
+			... // 处理item
+		}
+	}
+	if err != rsf.EOF {
+		... // 错误处理
+	}
+}
+```
+
 范围：仅在服务端使用
 
 
