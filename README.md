@@ -159,9 +159,11 @@ type ListItem struct {
 这个 `ListPrefix` 的标准用法如下：
 
 ```{go}
+import "qiniu/api/rsf"
+
 func listAll(rs rsf.Client, bucket, prefix string, limit int) {
 
-	var items []ListItem
+	var items []rsf.ListItem
 	var marker string
 	var err error
 	for err == nil {
