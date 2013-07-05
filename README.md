@@ -364,7 +364,7 @@ func RputFileWithoutKey(
 	c rs.Client, bucket string, localFile string, extra *rio.PutExtra) (ret rio.PutRet, err error)
 ```
 
-范围：客户端和服务端
+范围：仅在服务端使用
 
 
 
