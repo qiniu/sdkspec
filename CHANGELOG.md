@@ -1,5 +1,14 @@
 ## CHANGE LOG
 
+### v6.0.4
+
+2013-07-05 issue [#33](https://github.com/qiniu/sdkspec/pull/33)
+
+- 补充 ListPrefix 的标准用法
+- 增加 单元测试环境(test-env.sh) 规范
+- 增加 服务端上传（rsutil）模块规范
+
+
 ### v6.0.3
 
 2013-07-02 issue [#32](https://github.com/qiniu/sdkspec/pull/32)
