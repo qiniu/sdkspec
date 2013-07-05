@@ -338,30 +338,38 @@ import (
 // simple upload
 
 func Put(
-	c rs.Client, bucket, key string, body io.Reader, extra *sio.PutExtra) (ret sio.PutRet, err error)
+	c rs.Client, bucket string,
+	key string, body io.Reader, extra *sio.PutExtra) (ret sio.PutRet, err error)
 
 func PutWithoutKey(
-	c rs.Client, bucket string, body io.Reader, extra *sio.PutExtra) (ret sio.PutRet, err error)
+	c rs.Client, bucket string,
+	body io.Reader, extra *sio.PutExtra) (ret sio.PutRet, err error)
 
 func PutFile(
-	c rs.Client, bucket, key string, localFile string, extra *sio.PutExtra) (ret sio.PutRet, err error)
+	c rs.Client, bucket string,
+	key string, localFile string, extra *sio.PutExtra) (ret sio.PutRet, err error)
 
 func PutFileWithoutKey(
-	c rs.Client, bucket string, localFile string, extra *sio.PutExtra) (ret sio.PutRet, err error)
+	c rs.Client, bucket string,
+	localFile string, extra *sio.PutExtra) (ret sio.PutRet, err error)
 
 // resumable upload
 
 func Rput(
-	c rs.Client, bucket, key string, body io.Reader, extra *rio.PutExtra) (ret rio.PutRet, err error)
+	c rs.Client, bucket string,
+	key string, f io.ReaderAt, fsize int64, extra *rio.PutExtra) (ret rio.PutRet, err error)
 
 func RputWithoutKey(
-	c rs.Client, bucket string, body io.Reader, extra *rio.PutExtra) (ret rio.PutRet, err error)
+	c rs.Client, bucket string,
+	f io.ReaderAt, fsize int64, extra *rio.PutExtra) (ret rio.PutRet, err error)
 
 func RputFile(
-	c rs.Client, bucket, key string, localFile string, extra *rio.PutExtra) (ret rio.PutRet, err error)
+	c rs.Client, bucket string,
+	key string, localFile string, extra *rio.PutExtra) (ret rio.PutRet, err error)
 
 func RputFileWithoutKey(
-	c rs.Client, bucket string, localFile string, extra *rio.PutExtra) (ret rio.PutRet, err error)
+	c rs.Client, bucket string,
+	localFile string, extra *rio.PutExtra) (ret rio.PutRet, err error)
 ```
 
 范围：仅在服务端使用
