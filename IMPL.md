@@ -9,8 +9,23 @@ docs/			- 文档所在目录
 tests/  		- 单元测试目录，有的语言习惯叫 test 目录。这个建议遵循社区惯例。
 README.md		- 项目说明文档
 CHANGELOG.md	- 更新日志
+test-env.sh		- 测试环境脚本
 .travis.yml		- Travis-CI 配置文件
 ```
+
+## 单元测试环境
+
+要运行单元测试，需要先准备单元测试环境(test-env.sh)。此文件默认内容如下：
+
+```
+export QINIU_ACCESS_KEY="<Please apply your access key>"
+export QINIU_SECRET_KEY="<Dont send your secret key to anyone>"
+export QINIU_TEST_BUCKET="<Bucket that run your test cases>"
+export QINIU_TEST_DOMAIN="<Domain that binding to your test bucket>"
+```
+
+SDK 的用户需要先修改此文件，配置上相关的信息，然后 source test-env.sh，就可以正确运行所有单元测试了。test-env.sh 的内容仅限于用户通过 SDK 无法完成的一些管理性操作，比如创建空间（bucket）、关联域名（domain）等等。
+
 
 ## Travis-CI
 
