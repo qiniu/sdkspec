@@ -323,3 +323,49 @@ func (this Exif) MakeRequest(url string) (imageExifUrl string)
 
 范围：客户端和服务端
 
+
+## 服务端上传（rsutil）
+
+```{go}
+package "qiniu/api/rsutil"
+
+import (
+	"qiniu/api/rs"
+	sio "qiniu/api/io"
+	rio "qiniu/api/resumable/io"
+)
+
+// simple upload
+
+func Put(
+	c rs.Client, bucket, key string, body io.Reader, extra *sio.PutExtra) (ret sio.PutRet, err error)
+
+func PutWithoutKey(
+	c rs.Client, bucket string, body io.Reader, extra *sio.PutExtra) (ret sio.PutRet, err error)
+
+func PutFile(
+	c rs.Client, bucket, key string, localFile string, extra *sio.PutExtra) (ret sio.PutRet, err error)
+
+func PutFileWithoutKey(
+	c rs.Client, bucket string, localFile string, extra *sio.PutExtra) (ret sio.PutRet, err error)
+
+// resumable upload
+
+func Rput(
+	c rs.Client, bucket, key string, body io.Reader, extra *rio.PutExtra) (ret rio.PutRet, err error)
+
+func RputWithoutKey(
+	c rs.Client, bucket string, body io.Reader, extra *rio.PutExtra) (ret rio.PutRet, err error)
+
+func RputFile(
+	c rs.Client, bucket, key string, localFile string, extra *rio.PutExtra) (ret rio.PutRet, err error)
+
+func RputFileWithoutKey(
+	c rs.Client, bucket string, localFile string, extra *rio.PutExtra) (ret rio.PutRet, err error)
+```
+
+范围：客户端和服务端
+
+
+
+
