@@ -313,7 +313,6 @@ func (this Exif) MakeRequest(url string) (imageExifUrl string)
 ```
 
 范围：客户端和服务端
->>>>>>> qiniu/master
 
 
 ## 服务端上传（rsutil）
