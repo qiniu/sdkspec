@@ -142,6 +142,9 @@ func New(mac *digest.Mac = nil) Client
 
 func (this Client) ListPrefix(
 	bucket, prefix, marker string, limit int) (entries []ListItem, markerOut string, err error)
+	// 1. 首次请求 marker = ""
+	// 2. 无论 err 值如何，均应该先看 entries 是否有内容
+	// 3. 如果后续没有更多数据，err 返回 EOF，markerOut 返回 ""（但不通过该特征来判断是否结束）
 
 type ListItem struct {
 	Key      string
@@ -153,6 +156,28 @@ type ListItem struct {
 }
 ```
 
+这个 `ListPrefix` 的标准用法如下：
+
+```{go}
+import "qiniu/api/rsf"
+
+func listAll(rs rsf.Client, bucket, prefix string, limit int) {
+
+	var items []rsf.ListItem
+	var marker string
+	var err error
+	for err == nil {
+		items, marker, err = rs.ListPrefix(bucket, prefix, marker, limit)
+		for _, item := range items {
+			... // 处理item
+		}
+	}
+	if err != rsf.EOF {
+		... // 错误处理
+	}
+}
+```
+
 范围：仅在服务端使用
 
 
@@ -160,10 +185,6 @@ type ListItem struct {
 
 ```{go}
 package "qiniu/api/io"
-
-// upload
-
-const UNDEFINED_KEY = "?"
 
 type PutExtra struct {
 	Params		 map[string]string // 用户自定义参数，key必须以 "x:" 开头
@@ -183,8 +204,14 @@ type PutRet struct {
 func Put(
 	ret interface{}, uptoken string, key string, body io.Reader, extra *PutExtra) (err error)
 
+func PutWithoutKey(
+	ret interface{}, uptoken string, body io.Reader, extra *PutExtra) (err error)
+
 func PutFile(
 	ret interface{}, uptoken string, key string, localFile string, extra *PutExtra) (err error)
+
+func PutFileWithoutKey(
+	ret interface{}, uptoken string, localFile string, extra *PutExtra) (err error)
 ```
 
 范围：客户端和服务端
@@ -196,8 +223,6 @@ func PutFile(
 package "qiniu/api/resumable/io"
 
 // upload
-
-const UNDEFINED_KEY = "?"
 
 type BlkputRet struct {
 	Ctx      string `json:"ctx"`
@@ -225,8 +250,14 @@ func Put(
 	ret interface{}, uptoken string,
 	key string, f io.ReaderAt, fsize int64, extra *PutExtra) (err error)
 
+func PutWithoutKey(
+	ret interface{}, uptoken string, f io.ReaderAt, fsize int64, extra *PutExtra) (err error)
+
 func PutFile(
 	ret interface{}, uptoken string, key string, localFile string, extra *PutExtra) (err error)
+
+func PutFileWithoutKey(
+	ret interface{}, uptoken string, localFile string, extra *PutExtra) (err error)
 
 func BlockCount(fsize int64) int
 
@@ -282,21 +313,65 @@ type ImageInfoRet struct {
 type ImageInfo struct {}
 
 func (this ImageInfo) MakeRequest(url string) (imageInfoUrl string)
-func (this ImageInfo) Call(url string) (ret ImageInfoRet, err error)
 
 // exif
 
-type ExifValType struct {
-	Val string
-	Type int
-}
-
-type ExifRet map[string] ExifValType
 type Exif struct {}
 
 func (this Exif) MakeRequest(url string) (imageExifUrl string)
-func (this Exif) Call(url string) (ret ExifRet, err error)
 ```
 
 范围：客户端和服务端
+>>>>>>> qiniu/master
+
+
+## 服务端上传（rsutil）
+
+```{go}
+package "qiniu/api/rsutil"
+
+import (
+	"qiniu/api/rs"
+	sio "qiniu/api/io"
+	rio "qiniu/api/resumable/io"
+)
+
+// simple upload
+
+func Put(
+	c rs.Client, bucket string,
+	key string, body io.Reader, extra *sio.PutExtra) (ret sio.PutRet, err error)
+
+func PutWithoutKey(
+	c rs.Client, bucket string,
+	body io.Reader, extra *sio.PutExtra) (ret sio.PutRet, err error)
+
+func PutFile(
+	c rs.Client, bucket string,
+	key string, localFile string, extra *sio.PutExtra) (ret sio.PutRet, err error)
+
+func PutFileWithoutKey(
+	c rs.Client, bucket string,
+	localFile string, extra *sio.PutExtra) (ret sio.PutRet, err error)
+
+// resumable upload
+
+func Rput(
+	c rs.Client, bucket string,
+	key string, f io.ReaderAt, fsize int64, extra *rio.PutExtra) (ret rio.PutRet, err error)
+
+func RputWithoutKey(
+	c rs.Client, bucket string,
+	f io.ReaderAt, fsize int64, extra *rio.PutExtra) (ret rio.PutRet, err error)
+
+func RputFile(
+	c rs.Client, bucket string,
+	key string, localFile string, extra *rio.PutExtra) (ret rio.PutRet, err error)
+
+func RputFileWithoutKey(
+	c rs.Client, bucket string,
+	localFile string, extra *rio.PutExtra) (ret rio.PutRet, err error)
+```
+
+范围：仅在服务端使用。本模块仅仅是 rs + io/rio 的简单包装。
 

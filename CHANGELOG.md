@@ -1,5 +1,36 @@
 ## CHANGE LOG
 
+### v6.0.4
+
+2013-07-05 issue [#33](https://github.com/qiniu/sdkspec/pull/33)
+
+- 补充 ListPrefix 的标准用法
+- 增加 单元测试环境(test-env.sh) 规范
+- 增加 服务端上传（rsutil）模块规范
+
+
+### v6.0.3
+
+2013-07-02 issue [#32](https://github.com/qiniu/sdkspec/pull/32)
+
+- 引入 PutWithoutKey, PutFileWithoutKey
+
+
+### v6.0.2
+
+2013-06-27 issue [#31](https://github.com/qiniu/sdkspec/pull/31)
+
+- 对 `ListPrefix` 的规格说明进行规范
+- IMPL.doc 补充了“开发流程”的规范
+
+
+### v6.0.1
+
+2013-06-24 issue [#30](https://github.com/qiniu/sdkspec/pull/30)
+
+- Remove fop.Call
+
+
 ### v6.0.0
 
 2013-06-21 issue [#27](https://github.com/qiniu/sdkspec/pull/27), [#28](https://github.com/qiniu/sdkspec/pull/28), [#29](https://github.com/qiniu/sdkspec/pull/29)
