@@ -152,23 +152,7 @@ namespace Qiniu.RS
 	{
 		public EntryPath Src{ get; set; };
 		public EntryPath Dest{ get; set; };
-		/// <summary>
-		/// 二元操作路径构造函数
-		/// </summary>
-		/// <param name="bucketSrc">源空间名称</param>
-		/// <param name="keySrc">源文件key</param>
-		/// <param name="bucketDest">目标空间名称</param>
-		/// <param name="keyDest">目文件key</param>
-		public EntryPathPair (string bucketSrc, string keySrc, string bucketDest, string keyDest);
-
-		/// <summary>
-		/// 二元操作路径构造函数
-		/// </summary>
-		/// <param name="bucket">源空间名称，目标空间名称</param>
-		/// <param name="keySrc">源文件key</param>
-		/// <param name="keyDest">目文件key</param>
-		public EntryPathPair (string bucket, string keySrc, string keyDest);
-
+		
 		/// <summary>
 		/// 二元操作路径构造函数
 		/// </summary>
