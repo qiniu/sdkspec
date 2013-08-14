@@ -2,7 +2,6 @@
 
 [![Qiniu Logo](http://qiniutek.com/images/logo-2.png)](http://qiniu.com/)
 
-
 ## 服务端配置（conf）
 
 服务端app.config 文件配置节点
@@ -91,6 +90,8 @@ namespace Qiniu.Auth.digest
 
 		public Mac ();//直接从Config中读取帐户信息
 		public Mac (string access, byte[] secretKey);
+		public string Sign (byte[] b); 
+		public string SignWithData (byte[] data);
 	}
 }
 ```
@@ -345,6 +346,7 @@ namespace Qiniu.RS
 		/// </summary>
 		public string Token (Mac mac=null);
 	}
+
 	/// <summary>
 	/// 下载凭证
 	/// </summary>
@@ -407,12 +409,11 @@ namespace Qiniu.RSF
 		public RSFClient (string bucketName);
 
 		/// <summary>
-		///
+		/// 获取资源列表
 		/// </summary>
 		public DumpRet ListPrefix (string bucketName, string prefix="", string markerIn="", int limit = MAX_LIMIT);
 	}
 }
-
 ```
 
 范围：仅在服务端使用
@@ -509,7 +510,6 @@ namespace Qiniu.IO
         public PutRet Put(string upToken, string key, System.IO.Stream putStream, PutExtra extra);
     }
 }
-
 ```
 
 范围：客户端和服务端
@@ -612,7 +612,6 @@ namespace Qiniu.IO.Resumable
 		public void PutFile (string upToken, string localFile, string key);
 	}
 }
-
 ```
 
 范围：客户端和服务端
