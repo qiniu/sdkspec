@@ -134,7 +134,7 @@ namespace Qiniu.RS
 	public class EntryPath
 	{
 		/// <summary>
-		/// 七年云存储空间名
+		/// 七牛云存储空间名
 		/// </summary>
 		public string Bucket {get;}
 
