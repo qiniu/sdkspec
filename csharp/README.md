@@ -5,6 +5,20 @@
 
 ## 服务端配置（conf）
 
+服务端app.config 文件配置节点
+``` xml
+<configuration>
+ 	<appSettings> 
+        <add key = "USER_AGENT" value="qiniu csharp-sdk version" />
+		<add key = "ACCESS_KEY" value="Please apply your access key" />
+		<add key = "SECRET_KEY" value="Dont send your secret key to anyone" />
+		<add key = "RS_HOST" value="http://rs.Qbox.me" />
+		<add key = "UP_HOST" value="http://up.qiniu.com" />
+		<add key = "RSF_HOST" value="http://rsf.Qbox.me" />
+	</appSettings> 
+</configuration>
+```
+
 ``` c#
 namespace Qiniu.Conf
 {
@@ -25,15 +39,15 @@ namespace Qiniu.Conf
 		/// <summary>
 		/// 七牛资源管理服务器地址
 		/// </summary>
-		public static string RS_HOST = "http://rs.Qbox.me";
+		public static string RS_HOST;
 		/// <summary>
 		/// 七牛资源上传服务器地址.
 		/// </summary>
-		public static string UP_HOST = "http://up.qiniu.com";
+		public static string UP_HOST;
 		/// <summary>
 		/// 七牛资源列表服务器地址.
 		/// </summary>
-		public static string RSF_HOST = "http://rsf.Qbox.me";
+		public static string RSF_HOST;
 		#endregion
 		/// <summary>
 		/// 七牛SDK对所有的字节编码采用utf-8形式 .
@@ -61,17 +75,12 @@ namespace Qiniu.Auth.digest
 	/// </summary>
 	public class Mac
 	{
-		
-		private string accessKey;
-
 		/// <summary>
 		/// Gets or sets the access key.
 		/// </summary>
 		public string AccessKey {
 			get; set;
 		}
-
-		private byte[] secretKey;
 
 		/// <summary>
 		/// Gets the secret key.
@@ -80,17 +89,8 @@ namespace Qiniu.Auth.digest
 			get;
 		}
 
-		public Mac ();
-		{
-			this.accessKey = Conf.Config.ACCESS_KEY;
-			this.secretKey = Config.Encoding.GetBytes (Config.SECRET_KEY);
-		}
-
-		public Mac (string access, byte[] secretKey)
-		{
-			this.accessKey = access;
-			this.secretKey = secretKey;
-		}
+		public Mac ();//直接从Config中读取帐户信息
+		public Mac (string access, byte[] secretKey);
 	}
 }
 ```
@@ -252,7 +252,6 @@ namespace Qiniu.RS
 		/// <summary>
 		/// 复制
 		/// </summary>
-		/// <returns>
 		public CallRet Copy (EntryPathPair pathPair);
 		#endregion
 
@@ -411,7 +410,6 @@ namespace Qiniu.RSF
 		///
 		/// </summary>
 		public DumpRet ListPrefix (string bucketName, string prefix="", string markerIn="", int limit = MAX_LIMIT);
-
 	}
 }
 
@@ -657,6 +655,9 @@ namespace Qiniu.FileOP{
 		public string MakeRequest (string url);
 	}
 
+	/// <summary>
+	///高级图像处理接口（第二版）（缩略、裁剪、旋转、转化） 
+	/// </summary>
 	public class ImageMogrify
 	{
 		public bool AutoOrient { get; set; }
@@ -675,15 +676,31 @@ namespace Qiniu.FileOP{
 
 		public string MakeRequest (string url);
 	}
+	
 
+	/// <summary>
+	/// 获取图片基本信息，图片基本信息包括图片格式,图片大小，色彩模式
+	/// </summary>
 	public class ImageInfoRet 
 	{
+		/// <summary>
+		/// "png", "jpeg", "gif", "bmp", etc.
+		/// </summary>
 		public int Width { get; private set; }
 
+		/// <summary>
+		/// 图片高度 
+		/// </summary>
 		public int Height { get; private set; }
 
+		/// <summary>
+		/// 图片宽度
+		/// </summary>
 		public string Format { get; private set; }
 
+		/// <summary>
+		/// "palette16", "ycbcr", etc.
+		/// </summary>
 		public string ColorModel { get; private set; }
 	}
 
