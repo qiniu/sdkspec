@@ -150,8 +150,8 @@ namespace Qiniu.RS
 	/// </summary>
 	public class EntryPathPair
 	{
-		EntryPath src;
-		EntryPath dest;
+		public EntryPath Src{ get; set; };
+		public EntryPath Dest{ get; set; };
 		/// <summary>
 		/// 二元操作路径构造函数
 		/// </summary>
@@ -168,6 +168,11 @@ namespace Qiniu.RS
 		/// <param name="keySrc">源文件key</param>
 		/// <param name="keyDest">目文件key</param>
 		public EntryPathPair (string bucket, string keySrc, string keyDest);
+
+		/// <summary>
+		/// 二元操作路径构造函数
+		/// </summary>
+		public EntryPathPair (EntryPath src, EntryPath Dest);
 	}
 
 	/// <summary>
