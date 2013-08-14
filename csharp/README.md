@@ -77,16 +77,12 @@ namespace Qiniu.Auth.digest
 		/// <summary>
 		/// Gets or sets the access key.
 		/// </summary>
-		public string AccessKey {
-			get; set;
-		}
+		public string AccessKey {get; set; }
 
 		/// <summary>
 		/// Gets the secret key.
 		/// </summary>
-		public byte[] SecretKey {
-			get;
-		}
+		public byte[] SecretKey {get; }
 
 		public Mac ();//直接从Config中读取帐户信息
 		public Mac (string access, byte[] secretKey);
