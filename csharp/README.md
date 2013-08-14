@@ -1,29 +1,51 @@
-# Qiniu Cloud Storage SDK Specification
+# Qiniu Cloud Storage C# SDK Specification
 
 [![Qiniu Logo](http://qiniutek.com/images/logo-2.png)](http://qiniu.com/)
-
-## 语言差异性
-
-- 命名风格：不同语言可以有不同的命名风格。本规范主要按类 Golang 风格进行描述（但不完全是）。
-- 名字空间：有的语言没有 package（namespace），通常通过名字前缀来表达。
-- 构造函数：有的语言没有构造函数，通过 NewXXX 函数来表达。本规范因为按 Golang 风格，构造函数也是用 NewXXX 进行描述。
-- 函数重载：有的语言没有函数重载，通过 XXXYYY 形式命名，其中 XXX 是功能，YYY 是不同重载函数的区分段。支持函数重载的语言没有 YYY 段。
-- 函数多返回值：有的语言不支持返回多个返回值，也不支持返回元组（tuple）。
 
 
 ## 服务端配置（conf）
 
-```{go}
-package "qiniu/api/conf"
+``` c#
+namespace Qiniu.Conf
+{
+	public class Config
+	{
+		public static string USER_AGENT = "qiniu csharp-sdk v6.0.0";
+		#region 帐户信息
+		/// <summary>
+		/// 七牛提供的公钥，用于识别用户
+		/// </summary>
+		public static string ACCESS_KEY = "<Please apply your access key>";
+		/// <summary>
+		/// 七牛提供的秘钥，不要在客户端初始化该变量
+		/// </summary>
+		public static string SECRET_KEY = "<Dont send your secret key to anyone>";
+		#endregion
+		#region 七牛服务器地址
+		/// <summary>
+		/// 七牛资源管理服务器地址
+		/// </summary>
+		public static string RS_HOST = "http://rs.Qbox.me";
+		/// <summary>
+		/// 七牛资源上传服务器地址.
+		/// </summary>
+		public static string UP_HOST = "http://up.qiniu.com";
+		/// <summary>
+		/// 七牛资源列表服务器地址.
+		/// </summary>
+		public static string RSF_HOST = "http://rsf.Qbox.me";
+		#endregion
+		/// <summary>
+		/// 七牛SDK对所有的字节编码采用utf-8形式 .
+		/// </summary>
+		public static Encoding Encoding = Encoding.UTF8;
 
-var USER_AGENT string // 请求的 User-Agent 值，比如 "qiniu php-sdk v6.0.0"
-
-var UP_HOST string
-var RS_HOST string
-var RSF_HOST string
-
-var ACCESS_KEY string
-var SECRET_KEY string // 不要在客户端初始化该变量
+		/// <summary>
+		/// 初始化七牛帐户、请求地址等信息，不应在客户端调用。
+		/// </summary>
+		public static void Init ();
+	}
+}
 ```
 
 范围：服务端和客户端共用
@@ -31,12 +53,45 @@ var SECRET_KEY string // 不要在客户端初始化该变量
 
 ## 签名认证（auth/digest）
 
-```{go}
-package "qiniu/api/auth/digest"
+``` c#
+namespace Qiniu.Auth.digest
+{
+	/// <summary>
+	/// 七牛消息认证(Message Authentication)
+	/// </summary>
+	public class Mac
+	{
+		
+		private string accessKey;
 
-type Mac struct {
-	AccessKey string
-	SecretKey []byte
+		/// <summary>
+		/// Gets or sets the access key.
+		/// </summary>
+		public string AccessKey {
+			get; set;
+		}
+
+		private byte[] secretKey;
+
+		/// <summary>
+		/// Gets the secret key.
+		/// </summary>
+		public byte[] SecretKey {
+			get;
+		}
+
+		public Mac ();
+		{
+			this.accessKey = Conf.Config.ACCESS_KEY;
+			this.secretKey = Config.Encoding.GetBytes (Config.SECRET_KEY);
+		}
+
+		public Mac (string access, byte[] secretKey)
+		{
+			this.accessKey = access;
+			this.secretKey = secretKey;
+		}
+	}
 }
 ```
 
@@ -45,55 +100,186 @@ type Mac struct {
 
 ## 存储API（rs）
 
-```{go}
-package "qiniu/api/rs"
+``` c#
+namespace Qiniu.RS
+{
+	public class Entry 
+	{
+		/// <summary>
+		/// 文件的Hash值
+		/// </summary>
+		public string Hash { get; private set; }
 
-type Client struct {
-	...
+		/// <summary>
+		/// 文件的大小(单位: 字节)
+		/// </summary>
+		public long Fsize { get; private set; }
+
+		/// <summary>
+		/// 文件上传到七牛云的时间(Unix时间戳)
+		/// </summary>
+		public long PutTime { get; private set; }
+
+		/// <summary>
+		/// 文件的媒体类型，比如"image/gif"
+		/// </summary>
+		public string MimeType { get; private set; }
+
+		/// <summary>
+		/// Gets the customer.
+		/// </summary>
+		public string Customer { get; private set; }
+	}
+
+	/// <summary>
+	/// 资源路径 bucket+   ":"+ key
+	/// </summary>
+	public class EntryPath
+	{
+		/// <summary>
+		/// 七年云存储空间名
+		/// </summary>
+		public string Bucket {get;}
+
+		/// <summary>
+		/// 文件key
+		/// </summary>
+		public string Key {get;}
+
+		public EntryPath (string bucket, string key);
+	}
+	/// <summary>
+	/// 二元操作路径
+	/// </summary>
+	public class EntryPathPair
+	{
+		EntryPath src;
+		EntryPath dest;
+		/// <summary>
+		/// 二元操作路径构造函数
+		/// </summary>
+		/// <param name="bucketSrc">源空间名称</param>
+		/// <param name="keySrc">源文件key</param>
+		/// <param name="bucketDest">目标空间名称</param>
+		/// <param name="keyDest">目文件key</param>
+		public EntryPathPair (string bucketSrc, string keySrc, string bucketDest, string keyDest);
+
+		/// <summary>
+		/// 二元操作路径构造函数
+		/// </summary>
+		/// <param name="bucket">源空间名称，目标空间名称</param>
+		/// <param name="keySrc">源文件key</param>
+		/// <param name="keyDest">目文件key</param>
+		public EntryPathPair (string bucket, string keySrc, string keyDest);
+	}
+
+	/// <summary>
+	/// 批操作返回结果
+	/// </summary>
+	public class BatchRetItem
+	{
+		public int code;
+		public BatchRetData data;
+	}
+
+	/// <summary>
+	/// 批操作返回结果
+	/// </summary>
+	public class BatchRetData
+	{
+		/// <summary>
+		/// 文件大小.
+		/// </summary>
+		public Int64 FSize {get; set;}
+
+		/// <summary>
+		/// 修改时间.
+		/// </summary>
+		public Int64 PutTime {get; set;}
+
+		/// <summary>
+		/// 文件名.
+		/// </summary>
+		public string Key {get; set;}
+
+		/// <summary>
+		/// Gets a value indicating whether this instance hash.
+		/// </summary>
+		public string Hash {get; set ;}
+
+		/// <summary>
+		/// Gets the MIME.
+		/// </summary>
+		public string Mime {get; set;}
+
+		/// <summary>
+		/// Gets the EndUser
+		/// </summary>
+		public string EndUser {get; set;}
+
+		/// <summary>
+		/// Error 
+		/// </summary>
+		public string Error {get; set; }
+	}
+
+	/// <summary>
+	/// 资源存储客户端，提供对文件的查看（stat），移动(move)，复制（copy）,删除（delete）操作
+	/// 以及与这些操作对应的批量操作
+	/// </summary>
+	public class RSClient 
+	{
+		private static string[] OPS = new string[] { "stat", "move", "copy", "delet" };
+
+		public RSClient (Mac mac=null);
+
+		#region 单文件操作
+		/// <summary>
+		/// 查看文件
+		/// </summary>
+		public Entry Stat (EntryPath scope);
+
+		/// <summary>
+		/// 删除文件
+		/// </summary>
+		public CallRet Delete (EntryPath scope);
+
+		/// <summary>
+		/// 移动文件
+		/// </summary>
+		public CallRet Move (EntryPathPair pathPair);
+
+		/// <summary>
+		/// 复制
+		/// </summary>
+		/// <returns>
+		public CallRet Copy (EntryPathPair pathPair);
+		#endregion
+
+		
+		#region 批文件操作
+		/// <summary>
+		/// 批操作：文件查看
+		/// </summary>
+		public List<BatchRetItem> BatchStat (EntryPath[] keys);
+		
+		/// <summary>
+		/// 批操作：文件移动
+		/// </summary>
+		public CallRet BatchMove (EntryPathPair[] entryPathPairs);
+
+		/// <summary>
+		/// 批操作：文件复制
+		/// </summary>
+		public CallRet BatchCopy (EntryPathPair[] entryPathPari);
+
+		/// <summary>
+		/// 批操作：删除
+		/// </summary>
+		public CallRet BatchDelete (EntryPath[] keys);
+		#endregion
+	}
 }
-
-func New(mac *digest.Mac = nil) Client
-
-func (this Client) Stat(bucket, key string) (entry Entry, err error)
-func (this Client) Delete(bucket, key string) (err error)
-func (this Client) Move(bucketSrc, keySrc, bucketDest, keyDest string) (err error)
-func (this Client) Copy(bucketSrc, keySrc, bucketDest, keyDest string) (err error)
-
-type Entry struct {
-	Hash     string
-	Fsize    int64
-	PutTime  int64
-	MimeType string
-	EndUser  string
-}
-
-// batch
-
-type EntryPath struct {
-	Bucket string
-	Key string
-}
-
-type EntryPathPair struct {
-	Src EntryPath
-	Dest EntryPath
-}
-
-type BatchItemRet struct {
-	Error string
-	Code  int
-}
-
-type BatchStatItemRet struct {
-	Data  Entry
-	Error string
-	Code  int
-}
-
-func (this Client) BatchStat(entries []EntryPath) (rets []BatchStatItemRet, err error)
-func (this Client) BatchDelete(entries []EntryPath) (rets []BatchItemRet, err error)
-func (this Client) BatchMove(entries []EntryPathPair) (rets []BatchItemRet, err error)
-func (this Client) BatchCopy(entries []EntryPathPair) (rets []BatchItemRet, err error)
 ```
 
 范围：仅在服务端使用
@@ -101,29 +287,81 @@ func (this Client) BatchCopy(entries []EntryPathPair) (rets []BatchItemRet, err 
 
 ## 上传/下载授权凭证（uptoken/dntoken）
 
-```{go}
-package "qiniu/api/rs"
+``` c#
+namespace Qiniu.RS
+{
+	/// <summary>
+	/// 上传凭证
+	/// </summary>
+	public class PutPolicy
+	{
+		/// <summary>
+		/// 一般指文件要上传到的目标存储空间（Bucket）。若为”Bucket”，表示限定只能传到该Bucket（仅限于新增文件）；若为”Bucket:Key”，表示限定特定的文件，可修改该文件。
+		/// </summary>
+		public string Scope {get; set; }
 
-type PutPolicy struct {
-	Scope		 string // 必选。可以是 bucketName 或者 bucketName:key
-	CallbackUrl	 string // 可选
-	CallbackBody string // 可选
-	ReturnUrl	 string // 可选
-	ReturnBody	 string // 可选
-	AsyncOps	 string // 可选
-	EndUser		 string // 可选
-	Expires		 uint32 // 可选。默认是 3600 秒
+		/// <summary>
+		/// 文件上传成功后，Qiniu-Cloud-Server 向 App-Server 发送POST请求的URL，必须是公网上可以正常进行POST请求并能响应 HTTP Status 200 OK 的有效 URL
+		/// </summary>
+		public string CallBackUrl {get; set; }
+
+		/// <summary>
+		/// 文件上传成功后，Qiniu-Cloud-Server 向 App-Server 发送POST请求的数据。支持 魔法变量 和 自定义变量，不可与 returnBody 同时使用。
+		/// </summary>
+		public string CallBackBody  {get; set; }
+
+		/// <summary>
+		/// 设置用于浏览器端文件上传成功后，浏览器执行301跳转的URL，一般为 HTML Form 上传时使用。文件上传成功后会跳转到 returnUrl?query_string, query_string 会包含 returnBody 内容。returnUrl 不可与 callbackUrl 同时使用
+		/// </summary>
+		public string ReturnUrl {get; set; }
+
+		/// <summary>
+		/// 文件上传成功后，自定义从 Qiniu-Cloud-Server 最终返回給终端 App-Client 的数据。支持 魔法变量，不可与 callbackBody 同时使用。
+		/// </summary>    
+		public string ReturnBody {get; set; }
+
+		/// <summary>
+		/// 指定文件（图片/音频/视频）上传成功后异步地执行指定的预转操作。每个预转指令是一个API规格字符串，多个预转指令可以使用分号“;”隔开
+		/// </summary>
+		public string AsyncOps {get; set; }
+
+		/// <summary>
+		/// 给上传的文件添加唯一属主标识，特殊场景下非常有用，比如根据终端用户标识给图片或视频打水印
+		/// </summary>
+		public string EndUser {get; set; }
+
+		/// <summary>
+		/// 定义 uploadToken 的失效时间，Unix时间戳，精确到秒，缺省为 3600 秒
+		/// </summary>
+		[JsonProperty("deadline")]
+		public string Expires {get; set; }
+
+		/// <summary>
+		/// 构造函数  
+		/// </summary>
+		public PutPolicy (string scope, UInt32 expires=3600);
+
+		/// <summary>
+		/// 生成上传Token
+		/// </summary>
+		public string Token (Mac mac=null);
+	}
+	/// <summary>
+	/// 下载凭证
+	/// </summary>
+	public class GetPolicy
+	{
+		/// <summary>
+		/// 对请求进行签名
+		/// </summary>
+		public static string MakeRequest (string baseUrl, UInt32 expires = 3600, Mac mac = null);
+		
+		/// <summary>
+		/// 构造请求URL
+		/// </summary>
+		public static string MakeBaseUrl (string domain, string key);
+	}
 }
-
-func (this *PutPolicy) Token(mac *digest.Mac = nil) (uptoken string)
-
-type GetPolicy struct {
-	Expires		 uint32 // 可选。默认是 3600 秒
-}
-
-func (this GetPolicy) MakeRequest(baseUrl string, mac *digest.Mac = nil) (privateUrl string)
-
-func MakeBaseUrl(domain, key string) (baseUrl string)
 ```
 
 范围：仅在服务端使用
@@ -131,26 +369,52 @@ func MakeBaseUrl(domain, key string) (baseUrl string)
 
 ## 存储高级API（rsf）
 
-```{go}
-package "qiniu/api/rsf"
+``` c#
+namespace Qiniu.RSF
+{	
+	/// <summary>
+	/// RS Fetch 
+	/// </summary>
+	public class RSFClient : QiniuAuthClient
+	{        
+		//单次fetch获取结果数目最大限制
+		private const int MAX_LIMIT = 1000;
+		//失败重试次数
+		private const int RETRY_TIME = 3;
 
-type Client struct {
-	...
+		/// <summary>
+		/// bucket name
+		/// </summary>
+		public string BucketName { get; private set; }
+
+		/// <summary>
+		/// Fetch返回结果条目数量限制
+		/// </summary>
+		public int Limit {get ; set ; } 
+
+		/// <summary>
+		/// 文件前缀
+		/// </summary>
+		public string Prefix {get ; set ; }
+
+		/// <summary>
+		/// Fetch 定位符.
+		/// </summary>
+		public string Marker  {get ; set ; }
+
+		/// <summary>
+		/// RS Fetch Client
+		/// </summary>
+		public RSFClient (string bucketName);
+
+		/// <summary>
+		///
+		/// </summary>
+		public DumpRet ListPrefix (string bucketName, string prefix="", string markerIn="", int limit = MAX_LIMIT);
+
+	}
 }
 
-func New(mac *digest.Mac = nil) Client
-
-func (this Client) ListPrefix(
-	bucket, prefix, marker string, limit int) (entries []ListItem, markerOut string, err error)
-
-type ListItem struct {
-	Key      string
-	Hash     string
-	Fsize    int64
-	PutTime  int64
-	MimeType string
-	EndUser  string
-}
 ```
 
 范围：仅在服务端使用
@@ -158,33 +422,96 @@ type ListItem struct {
 
 ## 上传（io）
 
-```{go}
-package "qiniu/api/io"
+``` c#
+namespace Qiniu.IO
+{
 
-// upload
+	/// <summary>
+	/// CRC检查类型
+	/// </summary>
+	public enum CheckCrcType
+	{
+		/// <summary>
+		/// default
+		/// </summary>
+		DEFAULT_CHECK = -1,
+		/// <summary>
+		/// 表示不进行 crc32 校验
+		/// </summary>
+		NO_CHECK = 0,
+		/// <summary>
+		///对于 Put 等同于 CheckCrc = 2；对于 PutFile 会自动计算 crc32 值
+		/// </summary>
+		CHECK_AUTO = 1,
+		/// <summary>
+		/// 表示进行 crc32 校验，且 crc32 值就是PutExtra:Crc32
+		/// </summary>
+		CHECK = 2
+	}
 
-const UNDEFINED_KEY = "?"
+	public class PutExtra
+	{
+		/// <summary>
+		/// 用户自定义参数，key必须以 "x:" 开头
+		/// </summary>
+		public Dictionary<string, string> Params{ get; set; }
 
-type PutExtra struct {
-	Params		 map[string]string // 用户自定义参数，key必须以 "x:" 开头
-	MimeType	 string // 可选
-	Crc32		 uint32
-	CheckCrc	 uint32
-		// CheckCrc == 0: 表示不进行 crc32 校验
-		// CheckCrc == 1: 对于 Put 等同于 CheckCrc = 2；对于 PutFile 会自动计算 crc32 值
-		// CheckCrc == 2: 表示进行 crc32 校验，且 crc32 值就是上面的 Crc32 变量
+		/// <summary>
+		/// 文件的媒体类型
+		/// </summary>
+		public string MimeType { get; set; }
+
+		/// <summary>
+		/// crc32值 
+		/// </summary>
+		public Int32 Crc32 { get; set; }
+		public CheckCrcType CheckCrc { get; set; }
+		public string Scope { get; set; }
+
+		public PutExtra ();
+		public PutExtra (string bucket, string mimeType);
+	}
+
+	public class PutRet 
+	{
+		/// <summary>
+		/// 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
+		/// </summary>
+		public string Hash { get; private set; }
+
+		/// <summary>
+		/// 如果传入的 key == UNDEFINED_KEY，则服务端返回 key
+		/// </summary>
+		public string key { get; private set; }
+	}
+	/// <summary>
+    /// 上传客户端
+    /// </summary>
+    public class IOClient
+    {
+	    private const string UNDEFINED_KEY = "?"
+        /// <summary>
+        /// 无论成功或失败，上传结束时触发的事件
+        /// </summary>
+        public event EventHandler<PutRet> PutFinished;
+
+        /// <summary>
+        /// 上传文件
+        /// </summary>
+        public PutRet PutFile(string upToken, string key, string localFile, PutExtra extra);
+
+        /// <summary>
+		/// Puts the file without key.
+		/// </summary>
+		public PutRet PutFileWithoutKey(string upToken,string localFile,PutExtra extra);
+
+        /// <summary>
+        /// 上传流 
+        /// </summary>
+        public PutRet Put(string upToken, string key, System.IO.Stream putStream, PutExtra extra);
+    }
 }
 
-type PutRet struct {
-	Hash    string // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
-	Key     string // 如果传入的 key == UNDEFINED_KEY，则服务端返回 key
-}
-
-func Put(
-	ret interface{}, uptoken string, key string, body io.Reader, extra *PutExtra) (err error)
-
-func PutFile(
-	ret interface{}, uptoken string, key string, localFile string, extra *PutExtra) (err error)
 ```
 
 范围：客户端和服务端
@@ -192,54 +519,102 @@ func PutFile(
 
 ## 断点续上传（resumable io）
 
-```{go}
-package "qiniu/api/resumable/io"
+``` c#
+namespace Qiniu.IO.Resumable
+{
+	/// <summary>
+	/// Block上传成功事件参数
+	/// </summary>
+	public class PutNotifyEvent:EventArgs
+	{
+		public int BlkIdx {get;}
 
-// upload
+		public int BlkSize {get;}
 
-const UNDEFINED_KEY = "?"
+		public BlkputRet Ret {get;}
 
-type BlkputRet struct {
-	Ctx      string `json:"ctx"`
-	Checksum string `json:"checksum"`
-	Crc32    uint32 `json:"crc32"`
-	Offset   uint32 `json:"offset"`
+		public PutNotifyEvent (int blkIdx, int blkSize, BlkputRet ret);
+	}
+
+	/// <summary>
+	/// 上传错误事件参数
+	/// </summary>
+	public class PutNotifyErrorEvent:EventArgs
+	{
+		public int BlkIdx {get;}
+
+		public int BlkSize {get;}
+
+		public string Error {get;}
+
+		public PutNotifyErrorEvent (int blkIdx, int blkSize, string error);
+	}
+
+	/// <summary>
+	/// 断点续上传参数 
+	/// </summary>
+	public class ResumablePutExtra
+	{
+		public string CallbackParams;
+		public string Bucket;
+		public string CustomMeta;
+		public string MimeType;
+		public int chunkSize;
+		public int tryTimes;
+		public BlkputRet[] Progresses;
+		public event EventHandler<PutNotifyEvent> Notify;
+		public event EventHandler<PutNotifyErrorEvent> NotifyErr;
+	}
+
+	/// <summary>
+	/// 块上传结果 
+	/// </summary>
+	public class BlkputRet
+	{
+		public string ctx;
+		public string checkSum;
+		public UInt32 crc32;
+		public UInt32 offset;
+	}
+
+	/// <summary>
+	/// 异步并行断点上传类
+	/// </summary>
+	public class ResumablePut
+	{
+		private const string UNDEFINED_KEY = "?"
+		/// <summary>
+		/// 上传完成事件
+		/// </summary>
+		public event EventHandler<CallRet> PutFinished;
+
+		/// <summary>
+		/// 进度提示事件
+		/// </summary>
+		public event Action<float> Progress;
+
+		/// <summary>
+		/// 上传设置
+		/// </summary>
+		public Settings PutSetting {get; set;}
+
+		/// <summary>
+		/// PutExtra
+		/// </summary>
+		public ResumablePutExtra Extra {get; set;}
+
+		/// <summary>
+		/// 构造函数
+		/// </summary>
+		public ResumablePut (Settings putSetting, ResumablePutExtra extra);
+
+		/// <summary>
+		/// 上传文件
+		/// </summary>
+		public void PutFile (string upToken, string localFile, string key);
+	}
 }
 
-type PutExtra struct {
-	Params		map[string]string // 用户自定义参数，key必须以 "x:" 开头
-	MimeType	string
-	ChunkSize	int		 // 可选。每次上传的Chunk大小
-	TryTimes	int		 // 可选。尝试次数
-	Progresses	[]BlkputRet // 可选。上传进度
-	Notify		func(blkIdx int, blkSize int, ret *BlkputRet) // 进度提示。注意blk是并行传输的
-	NotifyErr	func(blkIdx int, blkSize int, err error)
-}
-
-type PutRet struct {
-	Hash    string // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
-	Key     string // 如果传入的 key == UNDEFINED_KEY，则服务端返回 key
-}
-
-func Put(
-	ret interface{}, uptoken string,
-	key string, f io.ReaderAt, fsize int64, extra *PutExtra) (err error)
-
-func PutFile(
-	ret interface{}, uptoken string, key string, localFile string, extra *PutExtra) (err error)
-
-func BlockCount(fsize int64) int
-
-// global settings
-
-type Settings {
-	TaskQsize   int     // 可选。任务队列大小。为 0 表示取 Workers * 4。 
-	Workers     int     // 并行的工作线程数目。
-	ChunkSize	int		// 默认的Chunk大小，不设定则为256k
-	TryTimes	int		// 默认的尝试次数，不设定则为3
-}
-
-func SetSettings(settings *Settings)
 ```
 
 范围：客户端和服务端
@@ -247,55 +622,88 @@ func SetSettings(settings *Settings)
 
 ## 数据处理API（fop）
 
-```{go}
-package "qiniu/api/fop"
+``` c#
+namespace Qiniu.FileOP{
+	public class ImageView
+	{
+		/// <summary>
+		/// 缩略模式
+		/// </summary>
+		public int Mode { get; set; }
 
-// imageView
+		/// <summary>
+		/// Width = 0 表示不限定宽度
+		/// </summary>
+		public int Width { get; set; }
 
-type ImageView struct {
-	Mode int		// 缩略模式
-	Width int		// Width = 0 表示不限定宽度
-	Height int		// Height = 0 表示不限定高度
-	Quality int		// 质量, 1-100
-	Format string	// 输出格式，如jpg, gif, png, tif等等
+		/// <summary>
+		/// Height = 0 表示不限定高度
+		/// </summary>
+		public int Height { get; set; }
+
+		/// <summary>
+		///质量, 1-100
+		/// </summary>
+		public int Quality { get; set; }
+
+		/// <summary>
+		/// 输出格式，如jpg, gif, png, tif等等
+		/// </summary>
+		public string Format { get; set; }
+
+		/// <summary>
+		/// Makes the request.
+		/// </summary>
+		public string MakeRequest (string url);
+	}
+
+	public class ImageMogrify
+	{
+		public bool AutoOrient { get; set; }
+
+		public string Thumbnail { get; set; }
+
+		public string Gravity { get; set; }
+
+		public string Crop { get; set; }
+
+		public int Quality { get; set; }
+
+		public int Rotate { get; set; }
+
+		public string Format { get; set; }
+
+		public string MakeRequest (string url);
+	}
+
+	public class ImageInfoRet 
+	{
+		public int Width { get; private set; }
+
+		public int Height { get; private set; }
+
+		public string Format { get; private set; }
+
+		public string ColorModel { get; private set; }
+	}
+
+	public static class ImageInfo
+	{
+		public static string MakeRequest (string url);
+
+		public static ImageInfoRet Call (string url);
+	}
+
+	public class ExifValType
+	{
+		public string val { get; set; }
+		public int type { get; set; }
+	}
+	public class ExifRet : CallRet
+	{
+		public ExifValType this [string key] {get;}
+	}
 }
-
-func (this *ImageView) MakeRequest(url string) (imageViewUrl string)
-
-// imageMogr
-
-type ImageMogrify struct {
-	...				// 待标准化
-}
-
-func (this *ImageMogrify) MakeRequest(url string) (imageMogrUrl string)
-
-// imageInfo
-
-type ImageInfoRet struct {
-	Width int
-	Height int
-	Format string
-	ColorModel string
-}
-
-type ImageInfo struct {}
-
-func (this ImageInfo) MakeRequest(url string) (imageInfoUrl string)
-func (this ImageInfo) Call(url string) (ret ImageInfoRet, err error)
-
-// exif
-
-type ExifValType struct {
-	Val string
-	Type int
-}
-
-type ExifRet map[string] ExifValType
-type Exif struct {}
-
-func (this Exif) MakeRequest(url string) (imageExifUrl string)
-func (this Exif) Call(url string) (ret ExifRet, err error)
 ```
 
 范围：客户端和服务端
