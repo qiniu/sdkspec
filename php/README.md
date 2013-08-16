@@ -1,99 +1,297 @@
-# Qiniu Cloud Storage SDK Specification
+# Qiniu Cloud Storage PHP SDK Specification
 
-[![Qiniu Logo](http://qiniutek.com/images/logo-2.png)](http://qiniu.com/)
-
-## 语言差异性
-
-- 命名风格：不同语言可以有不同的命名风格。本规范主要按类 Golang 风格进行描述（但不完全是）。
-- 名字空间：有的语言没有 package（namespace），通常通过名字前缀来表达。
-- 构造函数：有的语言没有构造函数，通过 NewXXX 函数来表达。本规范因为按 Golang 风格，构造函数也是用 NewXXX 进行描述。
-- 函数重载：有的语言没有函数重载，通过 XXXYYY 形式命名，其中 XXX 是功能，YYY 是不同重载函数的区分段。支持函数重载的语言没有 YYY 段。
-- 函数多返回值：有的语言不支持返回多个返回值，也不支持返回元组（tuple）。
-
+[![Qiniu Lophp](http://qiniutek.com/images/lophp-2.png)](http://qiniu.com/)
 
 ## 服务端配置（conf）
 
-```{go}
-package "qiniu/api/conf"
+``` 
+{php}
+//资源上传服务器地址
+$QINIU_UP_HOST	= 'http://up.qiniu.com';
 
-var USER_AGENT string // 请求的 User-Agent 值，比如 "qiniu php-sdk v6.0.0"
+//资源管理服务器地址
+$QINIU_RS_HOST	= 'http://rs.qbox.me';
 
-var UP_HOST string
-var RS_HOST string
-var RSF_HOST string
+//资源列表服务器地址
+$QINIU_RSF_HOST	= 'http://rsf.qbox.me';
 
-var ACCESS_KEY string
-var SECRET_KEY string // 不要在客户端初始化该变量
+//公钥
+$QINIU_ACCESS_KEY	= '<Please apply your access key>';
+
+//私钥 不要在客户端初始化该变量
+$QINIU_SECRET_KEY	= '<Dont send your secret key to anyone>';
+
 ```
 
-范围：服务端和客户端共用
 
+## 签名认证（auth digest）
 
-## 签名认证（auth/digest）
+```
+{php}
 
-```{go}
-package "qiniu/api/auth/digest"
+class Qiniu_Mac {
 
-type Mac struct {
-	AccessKey string
-	SecretKey []byte
+	public $AccessKey;
+	public $SecretKey;
+	
+	public function Sign ($data) {} 
+	public function SignWithData ($data) {}
+	public function SignRequest ($req, $incbody) {} 
 }
+
 ```
 
 范围：仅在服务端使用
 
 
+## http客户端（http）
+
+```
+
+class Qiniu_Error
+{
+	/**
+	 * @var string
+	 */
+	public $Err;	 // string
+	
+	/**
+	 * @var string
+	 */
+	public $Reqid;	 // string
+	
+	/**
+	 * @var []string
+	 */
+	public $Details; // []string
+	
+	/**
+	 * @var int
+	 */
+	public $Code;	 // int
+
+	public function __construct($code, $err)
+	{
+		$this->Code = $code;
+		$this->Err = $err;
+	}
+}
+
+class Qiniu_Request
+{
+	/**
+	 * @var string
+	 */
+	public $URL;
+	
+	/**
+	 * @var []string
+	 */
+	public $Header;
+	
+	/**
+	 * @var mixed
+	 */
+	public $Body;
+
+	public function __construct($url, $body)
+	{
+		$this->URL = $url;
+		$this->Header = array();
+		$this->Body = $body;
+	}
+}
+
+
+class Qiniu_Response
+{
+	/**
+	 * @var int 状态码
+	 */
+	public $StatusCode;
+	
+	/**
+	 * @var []string
+	 */
+	public $Header;
+	
+	/**
+	 * @var int 
+	 */
+	public $ContentLength;
+	
+	/**
+	 * @var mixed
+	 */
+	public $Body;
+
+	public function __construct($code, $body)
+	{
+		$this->StatusCode = $code;
+		$this->Header = array();
+		$this->Body = $body;
+		$this->ContentLength = strlen($body);
+	}
+}
+
+/**
+ * httpclient
+ */
+class Qiniu_HttpClient
+{
+	/**
+	 * @param Qiniu_Request $req
+	 * @return array(Qiniu_Response $resp, Qiniu_Error $error)
+	 */
+	public function RoundTrip($req) {}
+}
+
+/**
+ * 经过认证的httpclient
+ */
+class Qiniu_MacHttpClient
+{
+	/**
+	 * @var Qiniu_Mac
+	 */
+	public $Mac;
+
+	public function __construct($mac) {}
+
+	/**
+	 * @param Qiniu_Request $req
+	 * @return array(Qiniu_Response $resp, Qiniu_Error $error)
+	 */
+	public function RoundTrip($req) {}
+}
+
+```
+
+
+
 ## 存储API（rs）
 
-```{go}
-package "qiniu/api/rs"
+```
+{php}
 
-type Client struct {
-	...
+/**
+ * 资源路径: $bucket . ':' . $key 
+ */
+class Qiniu_RS_EntryPath
+{
+	/**
+	 * @var string Bucket name
+	 */
+	public $bucket;
+	
+	/**
+	 * @var string file key
+	 */
+	public $key;
+
+	public function __construct($bucket, $key)
+	{
+		$this->bucket = $bucket;
+		$this->key = $key;
+	}
 }
 
-func New(mac *digest.Mac = nil) Client
+/**
+ * 二元操作路径
+ */
+class Qiniu_RS_EntryPathPair
+{
+	/**
+	 * @var Qiniu_RS_EntryPath
+	 */
+	public $src;
+	
+	/**
+	 * @var Qiniu_RS_EntryPath
+	 */
+	public $dest;
 
-func (this Client) Stat(bucket, key string) (entry Entry, err error)
-func (this Client) Delete(bucket, key string) (err error)
-func (this Client) Move(bucketSrc, keySrc, bucketDest, keyDest string) (err error)
-func (this Client) Copy(bucketSrc, keySrc, bucketDest, keyDest string) (err error)
-
-type Entry struct {
-	Hash     string
-	Fsize    int64
-	PutTime  int64
-	MimeType string
-	EndUser  string
+	public function __construct($src, $dest)
+	{
+		$this->src = $src;
+		$this->dest = $dest;
+	}
 }
 
-// batch
+/**
+ * 查看单个文件的信息
+ * @param Qiniu_MacHttpClient $self
+ * @param string $bucket
+ * @param string $key
+ * @return array($statRet, Qiniu_ResponseError $error)
+ */
+function Qiniu_RS_Stat($self, $bucket, $key) {}
 
-type EntryPath struct {
-	Bucket string
-	Key string
-}
+/**
+ * 删除单个文件
+ * @param Qiniu_MacHttpClient $self
+ * @param string $bucket
+ * @param string $key
+ * @return Qiniu_ResponseError $error
+ */
+function Qiniu_RS_Delete($self, $bucket, $key) {}
 
-type EntryPathPair struct {
-	Src EntryPath
-	Dest EntryPath
-}
+/**
+ * 移动文件
+ * @param Qiniu_MacHttpClient $self
+ * @param string $bucketSrc
+ * @param string $keySrc
+ * @param string $bucketDest
+ * @param string $keyDest
+ * @return  Qiniu_ResponseError $error
+ */
+function Qiniu_RS_Move($self, $bucketSrc, $keySrc, $bucketDest, $keyDest) {}
 
-type BatchItemRet struct {
-	Error string
-	Code  int
-}
+/**
+ * 文件复制
+ * @param Qiniu_MacHttpClient $self
+ * @param string $bucketSrc
+ * @param string $keySrc
+ * @param string $bucketDest
+ * @param string $keyDest
+ * @return Qiniu_ResponseError $error
+ */
+function Qiniu_RS_Copy($self, $bucketSrc, $keySrc, $bucketDest, $keyDest) {}
 
-type BatchStatItemRet struct {
-	Data  Entry
-	Error string
-	Code  int
-}
+function Qiniu_RS_Batch($self, $ops) {}
 
-func (this Client) BatchStat(entries []EntryPath) (rets []BatchStatItemRet, err error)
-func (this Client) BatchDelete(entries []EntryPath) (rets []BatchItemRet, err error)
-func (this Client) BatchMove(entries []EntryPathPair) (rets []BatchItemRet, err error)
-func (this Client) BatchCopy(entries []EntryPathPair) (rets []BatchItemRet, err error)
+/**
+ * 批量文件查看
+ * @param Qiniu_MacHttpClient $self
+ * @param  Array Qiniu_RS_EntryPath $entryPaths
+ * @return array($statRet, Qiniu_ResponseError $err)
+ */
+function Qiniu_RS_BatchStat($self, $entryPaths) {}
+
+/**
+ * 批量文件查看
+ * @param Qiniu_MacHttpClient $self
+ * @param  Array Qiniu_RS_EntryPath $entryPaths
+ * @return array($statRet, Qiniu_ResponseError $err)
+ */
+function Qiniu_RS_BatchDelete($self, $entryPaths) {}
+
+/**
+ * 批量文件查看
+ * @param Qiniu_MacHttpClient $self
+ * @param  Array Qiniu_RS_EntryPathPair $entryPairs
+ * @return array($statRet, Qiniu_ResponseError $err)
+ */
+function Qiniu_RS_BatchMove($self, $entryPairs) {}
+
+/**
+ * 批量文件查看
+ * @param Qiniu_MacHttpClient $self
+ * @param  Array Qiniu_RS_EntryPathPair $entryPairs
+ * @return array($statRet, Qiniu_ResponseError $err)
+ */
+function Qiniu_RS_BatchCopy($self, $entryPairs) {}
+
 ```
 
 范围：仅在服务端使用
@@ -101,29 +299,94 @@ func (this Client) BatchCopy(entries []EntryPathPair) (rets []BatchItemRet, err 
 
 ## 上传/下载授权凭证（uptoken/dntoken）
 
-```{go}
-package "qiniu/api/rs"
+```
+{php}
 
-type PutPolicy struct {
-	Scope		 string // 必选。可以是 bucketName 或者 bucketName:key
-	CallbackUrl	 string // 可选
-	CallbackBody string // 可选
-	ReturnUrl	 string // 可选
-	ReturnBody	 string // 可选
-	AsyncOps	 string // 可选
-	EndUser		 string // 可选
-	Expires		 uint32 // 可选。默认是 3600 秒
+class Qiniu_RS_PutPolicy
+{
+
+	/**
+	 * 一般指文件要上传到的目标存储空间（Bucket）。
+	 * 若为”Bucket”，表示限定只能传到该Bucket（仅限于新增文件）。
+	 * 若为”Bucket:Key”，表示限定特定的文件，可修改该文件。
+	 */
+	public $Scope;
+	
+	/**
+	 *  文件上传成功后，Qiniu-Cloud-Server 向 App-Server 发送POST请求的URL.
+	 *  必须是公网上可以正常进行POST请求并能响应 HTTP Status 200 OK 的有效 URL
+	 */
+	public $CallbackUrl;
+	
+	/**
+	 * 文件上传成功后，Qiniu-Cloud-Server 向 App-Server 发送POST请求的数据。
+	 * 支持 魔法变量 和 自定义变量，不可与 returnBody 同时使用。
+	 */
+	public $CallbackBody;
+	
+	/**
+	 * 设置用于浏览器端文件上传成功后，浏览器执行301跳转的URL，一般为 HTML Form 上传时使用。
+	 * 文件上传成功后会跳转到 returnUrl?query_string, query_string 会包含 returnBody 内容。
+	 * returnUrl 不可与 callbackUrl 同时使用。
+	 */
+	public $ReturnUrl;
+	
+	/**
+	 *  文件上传成功后，自定义从 Qiniu-Cloud-Server 最终返回給终端 App-Client 的数据。
+	 *  支持 魔法变量，不可与 callbackBody 同时使用。
+	 */
+	public $ReturnBody;
+	
+	/**
+	 * 指定文件（图片/音频/视频）上传成功后异步地执行指定的预转操作。
+	 * 每个预转指令是一个API规格字符串，多个预转指令可以使用分号“;”隔开。
+	 */
+	public $AsyncOps;
+	
+	/**
+	 * 给上传的文件添加唯一属主标识，特殊场景下非常有用，比如根据终端用户标识给图片或视频打水印
+	 */
+	public $EndUser;
+	
+	/**
+	 * 定义 uploadToken 的失效时间，Unix时间戳，精确到秒，缺省为 3600 秒
+	 */
+	public $Expires;
+
+	
+	/**
+	 * 构造函数
+	 */
+	public function __construct($scope)
+	{
+		$this->Scope = $scope;
+	}
+
+	/**
+	 * 生成upload token
+	 */
+	public function Token($mac) {}
+	
 }
 
-func (this *PutPolicy) Token(mac *digest.Mac = nil) (uptoken string)
+class Qiniu_RS_GetPolicy
+{
 
-type GetPolicy struct {
-	Expires		 uint32 // 可选。默认是 3600 秒
+	/**
+	 * 可选， 默认3600秒
+	 */
+	public $Expires;
+
+	/**
+	 * 对请求url 进行前面
+	 */
+	public function MakeRequest($baseUrl, $mac) {}
 }
 
-func (this GetPolicy) MakeRequest(baseUrl string, mac *digest.Mac = nil) (privateUrl string)
-
-func MakeBaseUrl(domain, key string) (baseUrl string)
+/**
+ * 构造请求url
+ */
+function Qiniu_RS_MakeBaseUrl($domain, $key) {}
 ```
 
 范围：仅在服务端使用
@@ -131,60 +394,63 @@ func MakeBaseUrl(domain, key string) (baseUrl string)
 
 ## 存储高级API（rsf）
 
-```{go}
-package "qiniu/api/rsf"
-
-type Client struct {
-	...
-}
-
-func New(mac *digest.Mac = nil) Client
-
-func (this Client) ListPrefix(
-	bucket, prefix, marker string, limit int) (entries []ListItem, markerOut string, err error)
-
-type ListItem struct {
-	Key      string
-	Hash     string
-	Fsize    int64
-	PutTime  int64
-	MimeType string
-	EndUser  string
-}
 ```
-
-范围：仅在服务端使用
+{php}
+/**
+ * 1. 首次请求 marker = ""
+ * 2. 无论 err 值如何，均应该先看 items 是否有内容
+ * 3. 如果后续没有更多数据，err 返回 EOF，markerOut 返回 ""（但不通过该特征来判断是否结束）
+ * @param $self Qiniu_MacHttpClient
+ * @param $bucket string 
+ * Bucket name.
+ * @param $prefix string
+ * 要list文件的前缀
+ * @param $marker string
+ * Fetch 定位符.
+ * @param $limit int
+ * Fetch返回结果条目数量限制
+ *
+ */
+function Qiniu_RSF_ListPrefix(
+	$self, $bucket, $prefix = '', $marker = '', $limit = 0) {}
+```
 
 
 ## 上传（io）
 
-```{go}
-package "qiniu/api/io"
+```
+{php}
 
-// upload
-
-const UNDEFINED_KEY = "?"
-
-type PutExtra struct {
-	Params		 map[string]string // 用户自定义参数，key必须以 "x:" 开头
-	MimeType	 string // 可选
-	Crc32		 uint32
-	CheckCrc	 uint32
-		// CheckCrc == 0: 表示不进行 crc32 校验
-		// CheckCrc == 1: 对于 Put 等同于 CheckCrc = 2；对于 PutFile 会自动计算 crc32 值
-		// CheckCrc == 2: 表示进行 crc32 校验，且 crc32 值就是上面的 Crc32 变量
+class Qiniu_PutExtra
+{
+	/**
+	 *  用户自定义参数，key必须以 "x:" 开头
+	 */
+	public $Params = null;
+	
+	/**
+	 * 文件的媒体类型
+	 */
+	public $MimeType = null;
+	
+	/**
+	 * crc32 值
+	 */
+	public $Crc32 = 0;
+	
+	/**
+	 * 是否对上传内容进行 crc32 检验
+	 * CheckCrc == 0: 表示不进行 crc32 校验
+	 * CheckCrc == 1: 对于 Put 等同于 CheckCrc = 2；对于 PutFile 会自动计算 crc32 值
+	 * CheckCrc == 2: 表示进行 crc32 校验，且 crc32 值就是上面的 Crc32 变量
+	 */
+	public $CheckCrc = 0;
 }
 
-type PutRet struct {
-	Hash    string // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
-	Key     string // 如果传入的 key == UNDEFINED_KEY，则服务端返回 key
-}
+function Qiniu_Put($upToken, $key, $body, $putExtra) {}
 
-func Put(
-	ret interface{}, uptoken string, key string, body io.Reader, extra *PutExtra) (err error)
+function Qiniu_PutFile($upToken, $key, $localFile, $putExtra) {}
 
-func PutFile(
-	ret interface{}, uptoken string, key string, localFile string, extra *PutExtra) (err error)
 ```
 
 范围：客户端和服务端
@@ -192,54 +458,94 @@ func PutFile(
 
 ## 断点续上传（resumable io）
 
-```{go}
-package "qiniu/api/resumable/io"
+```
 
-// upload
+{php}
 
-const UNDEFINED_KEY = "?"
+class Qiniu_Rio_PutExtra
+{
+	/**
+	 * @var string 必选 （未来会没有这个字段）。
+	 */
+	public $Bucket = null;		
+	
+	/**
+	 * @var array  用户自定义参数，key必须以 "x:" 开头
+	 */
+	public $Params = null;
+	
+	/**
+	 * @var string
+	 */
+	public $MimeType = null;
+	
+	/**
+	 * @var int 可选。每次上传的Chunk大小
+	 */
+	public $ChunkSize = 0;		
+	
+	/**
+	 * @var int 可选。尝试次数
+	 */
+	public $TryTimes = 0;	
 
-type BlkputRet struct {
-	Ctx      string `json:"ctx"`
-	Checksum string `json:"checksum"`
-	Crc32    uint32 `json:"crc32"`
-	Offset   uint32 `json:"offset"`
+	/**
+	 * @var []BlkputRet 可选。上传进度
+	 */
+	public $Progresses = null;
+	
+	/**
+	 * @var func(blkIdx int, blkSize int, ret *BlkputRet) 进度通知
+	 */
+	public $Notify = null;		
+
+	/**
+	 * @var func(blkIdx int, blkSize int, err error) 错误通知
+	 */
+	public $NotifyErr = null;
+
+	public function __construct($bucket = null) {
+		$this->Bucket = $bucket;
+	}
 }
 
-type PutExtra struct {
-	Params		map[string]string // 用户自定义参数，key必须以 "x:" 开头
-	MimeType	string
-	ChunkSize	int		 // 可选。每次上传的Chunk大小
-	TryTimes	int		 // 可选。尝试次数
-	Progresses	[]BlkputRet // 可选。上传进度
-	Notify		func(blkIdx int, blkSize int, ret *BlkputRet) // 进度提示。注意blk是并行传输的
-	NotifyErr	func(blkIdx int, blkSize int, err error)
+
+function Qiniu_Rio_Mkblock ($self, $host, $reader, $size) {} 
+function Qiniu_Rio_Mkfile($self, $host, $key, $fsize, $extra) {}
+
+class Qiniu_Rio_UploadClient
+{
+	public $uptoken;
+
+	public function __construct($uptoken)
+	{
+		$this->uptoken = $uptoken;
+	}
+
+	public function RoundTrip ($req) {}
+		
 }
 
-type PutRet struct {
-	Hash    string // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
-	Key     string // 如果传入的 key == UNDEFINED_KEY，则服务端返回 key
-}
 
-func Put(
-	ret interface{}, uptoken string,
-	key string, f io.ReaderAt, fsize int64, extra *PutExtra) (err error)
+/**
+ * @param string $upToken
+ * @param string $key
+ * @param mixed $body
+ * @param int $fsize
+ * @param  Qiniu_Rio_PutExtra $putExtra
+ * @return array($putRet, $err)
+ */
+function Qiniu_Rio_Put($upToken, $key, $body, $fsize, $putExtra) {}
 
-func PutFile(
-	ret interface{}, uptoken string, key string, localFile string, extra *PutExtra) (err error)
+/**
+ * @param string $upToken
+ * @param string $key
+ * @param string $localFile
+ * @param Qiniu_Rio_PutExtra $putExtra
+ * @return array($putRet, $err)
+ */
+function Qiniu_Rio_PutFile($upToken, $key, $localFile, $putExtra) {}
 
-func BlockCount(fsize int64) int
-
-// global settings
-
-type Settings {
-	TaskQsize   int     // 可选。任务队列大小。为 0 表示取 Workers * 4。 
-	Workers     int     // 并行的工作线程数目。
-	ChunkSize	int		// 默认的Chunk大小，不设定则为256k
-	TryTimes	int		// 默认的尝试次数，不设定则为3
-}
-
-func SetSettings(settings *Settings)
 ```
 
 范围：客户端和服务端
@@ -247,55 +553,62 @@ func SetSettings(settings *Settings)
 
 ## 数据处理API（fop）
 
-```{go}
-package "qiniu/api/fop"
+```
+{php}
 
-// imageView
+class Qiniu_ImageView {
+	/**
+	 * @var int 缩略模式
+	 */
+	public $Mode;
+	
+	/**
+	 * @var int 不设置时，不限定宽度。
+	 */
+    public $Width;
+    
+    /**
+     * @var int 不设置时，不限定宽度。
+     */
+    public $Height;
+    
+    /**
+     * @var int 图片质量： 1-100
+     */
+    public $Quality;
+    
+    /**
+     * @var string 图片输出格式 如 png, jpg 等
+     */
+    public $Format;
 
-type ImageView struct {
-	Mode int		// 缩略模式
-	Width int		// Width = 0 表示不限定宽度
-	Height int		// Height = 0 表示不限定高度
-	Quality int		// 质量, 1-100
-	Format string	// 输出格式，如jpg, gif, png, tif等等
+    /**
+     * @param string $url
+     * 图片的url
+     * @return string
+     */
+    public function MakeRequest($url) {}
 }
 
-func (this *ImageView) MakeRequest(url string) (imageViewUrl string)
+class Qiniu_Exif {
+	/**
+	 * @param string $url
+	 * 图片的url
+	 * @return string
+	 */
+	public function MakeRequest($url) {}
 
-// imageMogr
-
-type ImageMogrify struct {
-	...				// 待标准化
 }
 
-func (this *ImageMogrify) MakeRequest(url string) (imageMogrUrl string)
+class Qiniu_ImageInfo {
 
-// imageInfo
-
-type ImageInfoRet struct {
-	Width int
-	Height int
-	Format string
-	ColorModel string
+	/**
+	 * @param string $url
+	 * 图片的url
+	 * @return string
+	 */
+	public function MakeRequest($url) {}
 }
-
-type ImageInfo struct {}
-
-func (this ImageInfo) MakeRequest(url string) (imageInfoUrl string)
-func (this ImageInfo) Call(url string) (ret ImageInfoRet, err error)
-
-// exif
-
-type ExifValType struct {
-	Val string
-	Type int
-}
-
-type ExifRet map[string] ExifValType
-type Exif struct {}
-
-func (this Exif) MakeRequest(url string) (imageExifUrl string)
-func (this Exif) Call(url string) (ret ExifRet, err error)
 ```
 
 范围：客户端和服务端
