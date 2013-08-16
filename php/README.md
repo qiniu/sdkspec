@@ -1,6 +1,6 @@
 # Qiniu Cloud Storage PHP SDK Specification
 
-[![Qiniu Lophp](http://qiniutek.com/images/lophp-2.png)](http://qiniu.com/)
+[![Qiniu Lophp](http://qiniutek.com/images/logo-2.png)](http://qiniu.com/)
 
 ## 服务端配置（conf）
 
