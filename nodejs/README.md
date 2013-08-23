@@ -53,9 +53,13 @@ function Client(client) {
   this.client = client || null;
 }
 
+// 查看文件信息
 Client.prototype.stat = function(bucket, key, onret) {}
+// 删除文件
 Client.prototype.remove = function(bucket, key, onret) {}
+// 移动文件
 Client.prototype.move = function(bucketSrc, keySrc, bucketDest, keyDest, onret) {}
+// 复制文件
 Client.prototype.copy = function(bucketSrc, keySrc, bucketDest, keyDest, onret) {}
 
 // batch
@@ -70,9 +74,13 @@ function EntryPathPair(src, dest) {
   this.dest = dest || null;
 }
 
+// 批量查看文件, entries 为 EntryPath 的数组
 Client.prototype.batchStat = function(entries, onret) {}
+// 批量删除文件, entries 为 EntryPath 的数组
 Client.prototype.batchDelete = function(entries, onret) {}
+// 批量移动文件, entries 为 EntryPathPair 的数组
 Client.prototype.batchMove = function(entries, onret) {}
+// 批量复制文件, entries 为 EntryPathPair 的数组
 Client.prototype.batchCopy = function(entries, onret) {}
 ```
 
@@ -95,13 +103,14 @@ function PutPolicy(scope, callbackUrl, callbackBody, returnUrl, returnBody,
   this.expires = expires || 3600;
 }
 
+// 生成上传的 token
 PutPolicy.prototype.token = function(mac) {}
 
 function GetPolicy(expires) {
   this.expires = expires || 3600;
 }
 
-// return private url
+// 生成私有下载的 url
 GetPolicy.prototype.makeRequest = function(baseUrl, mac) {}
 
 function makeBaseUrl(domain, key) {}
@@ -113,6 +122,7 @@ function makeBaseUrl(domain, key) {}
 ## 存储高级API（rsf）
 
 ```{js}
+// 列出 prefix 前缀的文件
 exports.listPrefix = function(bucket, prefix, marker, limit, onret) {}
 ```
 
@@ -138,9 +148,13 @@ function PutExtra(params, mimeType, crc32, checkCrc) {
 		// checkCrc == 2: 表示进行 crc32 校验，且 crc32 值就是上面的 crc32 变量
 }
 
+// 从内存中上传文件
 function put(uptoken, key, body, extra, onret) {}
+// 从内存中上传文件，不指定key
 function putWithoutKey(uptoken, body, extra, onret) {}
+// 根据文件名上传文件
 function putFile(uptoken, key, loadFile, extra, onret) {}
+// 根据文件名上传文件，不指定key
 function putFileWithoutKey(uptoken, loadFile, extra, onret) {}
 ```
 
@@ -163,20 +177,18 @@ function ImageView(mode, width, height, quality, format) {
   this.format = format || null;  // 输出格式，如jpg, gif, png, tif等等
 }
 
-// return call url
+// 生成缩略图的url
 ImageView.prototype.makeRequest = function(url) {}
 
 // imageInfo
-
 function ImageInfo() {}
 
-// return call url
+// 生成imageInfo的url
 ImageInfo.prototype.makeRequest = function(url) {}
 
 // exif
-
 function Exif() {}
 
-// return call url
+// 生成exif的url
 Exif.prototype.makeRequest = function(url) {}
 ```
