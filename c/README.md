@@ -4,7 +4,7 @@
 
 ## 语言差异性
 
-- 命名风格：命名用小驼峰法，如：`accessKey`
+- 命名风格：变量命名用小驼峰法，如：`accessKey`
 - 名字空间：C中没有命名空间，用前缀区分，如：`Qiniu_`
 - 构造函数：通过 NewXXX 函数来表达。
 
@@ -16,7 +16,7 @@
 const char* QINIU_ACCESS_KEY	= "<Please apply your access key>";
 const char* QINIU_SECRET_KEY	= "<Dont send your secret key to anyone>";
 
-const char* QINIU_RS_HOST		= "http://rs.qbox.me";
+const char* QINIU_RS_HOST		= "http://rs.qiniu.com";
 const char* QINIU_UP_HOST		= "http://up.qiniu.com";
 const char* QINIU_RSF_HOST		= "http://rsf.qiniu.com";
 
@@ -269,6 +269,25 @@ void Qiniu_Rio_SetSettings(Qiniu_Rio_Settings* v);
 // "fop.h"
 
 // imageView
+typedef struct _Qiniu_Fop_ImageView {
+    int mode;
+    int width;
+    int height;
+    int quality;
+    const char* format;
+} Qiniu_Fop_ImageView;
+
+const char* Qiniu_Fop_ImageView_MakeRequest(const char* url);
+
+// imageInfo
+typedef struct _Qiniu_Fop_ImageInfoRet {
+    int width;
+    int height;
+    const char* format;
+    const char* colorModel;
+} Qiniu_Fop_ImageInfoRet;
+
+Qiniu_Fop_ImageInfoRet* Qiniu_Fop_ImageInfo_Call(const char* url);
 
 ```
 
