@@ -277,7 +277,7 @@ typedef struct _Qiniu_Fop_ImageView {
     const char* format;
 } Qiniu_Fop_ImageView;
 
-const char* Qiniu_Fop_ImageView_MakeRequest(const char* url);
+const char* Qiniu_Fop_ImageView_MakeRequest(Qiniu_Fop_ImageView* imageView, const char* url);
 
 // imageInfo
 typedef struct _Qiniu_Fop_ImageInfoRet {
