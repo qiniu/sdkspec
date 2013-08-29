@@ -96,14 +96,14 @@ func (this Client) BatchCopy(entries []EntryPathPair) (rets []BatchItemRet, err 
 package "qiniu/api/rs"
 
 type PutPolicy struct {
-	Scope		 string  // 必选。可以是 bucketName 或者 bucketName:key
-	CallbackUrl	 string  // 可选。
-	CallbackBody     string  // 可选
-	ReturnUrl	 string  // 可选
-	ReturnBody	 string  // 可选
-	AsyncOps	 string  // 可选
-	EndUser		 string  // 可选
-	Expires		 uint32  // 可选。默认是 3600 秒
+	Scope	     string  // 必选。可以是 bucketName 或者 bucketName:key
+	CallbackUrl  string  // 可选。
+	CallbackBody string  // 可选
+	ReturnUrl    string  // 可选
+	ReturnBody   string  // 可选
+	AsyncOps     string  // 可选
+	EndUser	     string  // 可选
+	Expires	     uint32  // 可选。默认是 3600 秒
 }
 
 // 通常只有在key为非utf编码序列时候，才会返回错误
