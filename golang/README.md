@@ -98,7 +98,7 @@ package "qiniu/api/rs"
 type PutPolicy struct {
 	Scope		 string  // 必选。可以是 bucketName 或者 bucketName:key
 	CallbackUrl	 string  // 可选。
-	CallbackBody	 string  // 可选
+	CallbackBody     string  // 可选
 	ReturnUrl	 string  // 可选
 	ReturnBody	 string  // 可选
 	AsyncOps	 string  // 可选
