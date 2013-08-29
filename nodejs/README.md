@@ -6,6 +6,7 @@
 - 命名风格：按照 [http://nodeguide.com/style.html](http://nodeguide.com/style.html)
 - callback：  sdk中出现的`onret`都是`function(err, resp){}`形式
 - 以Key为对象进行大部分操作，支持stream上传下载。
+- Bucket, Key, Batch 一共这3个对象操作
 
 
 ## 服务端配置（conf）
@@ -43,7 +44,7 @@ conf = {
 Bucket = function(conf) {}
 
 // 获取key，keyname可为null
-Bucket.prototype.key = function(keyname) {}
+Bucket.prototype.key = function([keyname]) {}
 // 列出 prefix 前缀的文件
 Bucket.prototype.listPrefix = function(prefix, marker, limit, onret) {}
 ```
@@ -63,8 +64,8 @@ exports.Batch = Batch;
 Batch = function(conf) {}
 
 Batch.prototype.stat = function([key, ...], onret) {}
-Batch.prototype.copy = function([[src, dst],...], onret) {}
-Batch.prototype.move = function([[src, dst],...], onret) {}
+Batch.prototype.copy = function([[src, dst], ...], onret) {}
+Batch.prototype.move = function([[src, dst], ...], onret) {}
 Batch.prototype.remove = function([key, ...], onret) {}
 ```
 
@@ -85,9 +86,9 @@ putPolicy = {
 }
 
 // bucket
-Bucket.prototype.uptoken = function(putPolicy)
+Bucket.prototype.uptoken = function([putPolicy])
 // bucket:key
-Key.prototype.uptoken = function(putPolicy)
+Key.prototype.uptoken = function([putPolicy])
 ```
 
 范围：仅在服务端使用
@@ -108,9 +109,9 @@ extra = {
 
 // 可以指定2、3、4个参数
 // 从内存中上传文件
-Key.prototype.put = function(body, extra, uptoken, onret) {} 
+Key.prototype.put = function(body, [extra], [uptoken], onret) {} 
 // 根据文件名上传文件
-Key.prototype.putFile = function(loadFile, extra, uptoken, onret) {}
+Key.prototype.putFile = function(loadFile, [extra], [uptoken], onret) {}
 // 根据文件名上传文件，不指定key
 
 
@@ -121,7 +122,7 @@ read = createReadStream("xxx");
 read.pipe(key)
 
 // download, auto public or private
-Key.prototype.downloadUrl = function(expires) {}
+Key.prototype.downloadUrl = function([expires]) {}
 ```
 
 范围：客户端和服务端
@@ -131,11 +132,11 @@ Key.prototype.downloadUrl = function(expires) {}
 ```{js}
 // imageInfo
 Key.prototype.imageInfoUrl = function() {}
-Key.prototype.imageInfoCall = function(onret) {}
+Key.prototype.imageInfoCall = function([imageInfoUrl], onret) {}
 
 // exif
 Key.prototype.exifUrl = function() {}
-Key.prototype.exifCall = function(onret) {}
+Key.prototype.exifCall = function([exifUrl], onret) {}
 
 // qrcode
 Key.prototype.qrcodeUrl = function() {}
@@ -158,3 +159,5 @@ imageMogr = {
 
 Key.prototype.imageMogrUrl = function(imageMogr) {}
 ```
+
+范围：客户端和服务端
