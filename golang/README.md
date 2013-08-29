@@ -98,7 +98,7 @@ package "qiniu/api/rs"
 type PutPolicy struct {
 	Scope		 string  // 必选。可以是 bucketName 或者 bucketName:key
 	CallbackUrl	 string  // 可选。
-	CallbackBody     string  // 可选
+	CallbackBody	 string  // 可选
 	ReturnUrl	 string  // 可选
 	ReturnBody	 string  // 可选
 	AsyncOps	 string  // 可选
@@ -278,10 +278,10 @@ package "qiniu/api/fop"
 // imageView
 
 type ImageView struct {
-	Mode    int	// 缩略模式
+	Mode    int     // 缩略模式
 	Width   int     // Width = 0 表示不限定宽度
 	Height  int     // Height = 0 表示不限定高度
-	Quality int	// 质量, 1-100
+	Quality int     // 质量, 1-100
 	Format  string  // 输出格式，如jpg, gif, png, tif等等
 }
 
