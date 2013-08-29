@@ -92,24 +92,14 @@ Key.prototype.uptoken = function(putPolicy)
 范围：仅在服务端使用
 
 
-## 存储高级API（rsf）
-
-```{js}
-// 列出 prefix 前缀的文件
-Bucket.prototype.listPrefix = function(prefix, marker, limit, onret) {}
-```
-
-范围：仅在服务端使用
-
-
 ## 上传（io）
 
 ```{js}
 extra = {
-'params': {...},
-'mimeType': 'image/webp',
-'crc32': 'crc32 code',
-'checkCrc': 0 || 1 || 2
+	'params': {...},
+	'mimeType': 'image/webp',
+	'crc32': 'crc32 code',
+	'checkCrc': 0 || 1 || 2
 		// checkCrc == 0: 表示不进行 crc32 校验
 		// checkCrc == 1: 对于 Put 等同于 checkCrc = 2；对于 PutFile 会自动计算 crc32 值
 		// checkCrc == 2: 表示进行 crc32 校验，且 crc32 值就是上面的 crc32 变量
@@ -138,8 +128,18 @@ Key.prototype.downloadUrl = function(expires) {}
 ## 数据处理API（fop）
 
 ```{js}
-// imageView
+// imageInfo
+Key.prototype.imageInfoUrl = function() {}
+Key.prototype.imageInfoCall = function(onret) {}
 
+// exif
+Key.prototype.exifUrl = function() {}
+Key.prototype.exifCall = function(onret) {}
+
+// qrcode
+Key.prototype.qrcodeUrl = function() {}
+
+// imageView
 imageView = {
 	'mode': mode,		// 缩略模式
 	'width': width,		// Width = 0 表示不限定宽度
@@ -148,19 +148,7 @@ imageView = {
 	'format': format	// 输出格式，如jpg, gif, png, tif等等
 }
 
-// 生成缩略图的url
 Key.prototype.imageViewUrl = function(imageView) {}
-
-// imageInfo
-Key.prototype.imageInfoUrl = function() {}
-Key.prototype.imageInfoCall = function() {}
-
-// exif
-Key.prototype.exifUrl = function() {}
-Key.prototype.exifCall = function() {}
-
-// qrcode
-Key.prototype.qrcodeUrl = function() {}
 
 // imageMogr
 imageMogr = {
