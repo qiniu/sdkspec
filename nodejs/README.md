@@ -5,83 +5,66 @@
 
 - 命名风格：按照 [http://nodeguide.com/style.html](http://nodeguide.com/style.html)
 - callback：  sdk中出现的`onret`都是`function(err, resp){}`形式
+- 以Key为对象进行大部分操作，支持stream上传下载。
 
 
 ## 服务端配置（conf）
 
 ```{js}
-exports.USER_AGENT = ''// 请求的 User-Agent 值，比如 'qiniu nodejs-sdk v6.0.0'
+USER_AGENT = ''// 请求的 User-Agent 值，比如 'qiniu nodejs-sdk v7.0.0'
 
-exports.UP_HOST = 'http://up.qbox.me';
-exports.RS_HOST = 'http://rs.qbox.me';
-exports.RSF_HOST = 'http://rsf.qbox.me';
+UP_HOST = 'http://up.qiniu.com';
+RS_HOST = 'http://rs.qiniu.com';
+RSF_HOST = 'http://rsf.qiniu.com';
 
-exports.ACCESS_KEY = '<PLEASE APPLY YOUR ACCESS KEY>';
-exports.SECRET_KEY = '<DONT SEND YOUR SECRET KEY TO ANYONE>';
+ACCESS_KEY = '<PLEASE APPLY YOUR ACCESS KEY>';
+SECRET_KEY = '<DONT SEND YOUR SECRET KEY TO ANYONE>';
+
+conf = {
+	'accessKey': accessKey,
+	'secretKey': secretKey
+}
+exports.SetConf(conf)
 ```
 
 范围：服务端和客户端共用
 
-
-## 签名认证（auth/digest）
+## bucket
 
 ```{js}
-function Mac(accesskey, secretkey) {
-    this.accesskey = accesskey || conf.ACCESS_KEY;
-    this.secretkey = secretkey || conf.SECRET_KEY;
+exports.Bucket = Bucket
+
+conf = {
+	...
+	'bucketName': bucketname,
+	'dnHost': dnHost,  // 没有指定则为 http://<bucketname>.qiniudn.com
+	'public': true || false
 }
+Bucket = function(conf) {}
+
+// 获取key，keyname可为null
+Bucket.prototype.key = function(keyname) {}
+// 列出 prefix 前缀的文件
+Bucket.prototype.listPrefix = function(prefix, marker, limit, onret) {}
 ```
 
-范围：仅在服务端使用
-
+范围：服务端和客户端共用
 
 ## 存储API（rs）
 
 ```{js}
-exports.Client = Client;
-exports.Entry = Entry;
-exports.EntryPath = EntryPath;
-exports.EntryPathPair = EntryPathPair;
-exports.BatchItemRet = BatchItemRet;
-exports.BatchStatItemRet = BatchStatItemRet;
+Key.prototype.stat = function(onret) {}
+Key.prototype.remove = function(onret) {}
+Key.prototype.move = function(dstKey, onret) {}
+Key.prototype.copy = function(dstKey, onret) {}
 
-exports.PutPolicy = PutPolicy;
-exports.GetPolicy = GetPolicy;
-exports.makeBaseUrl = makeBaseUrl;
+// conf 在操作非default accesskey时候用
+function Batch(conf) {}
 
-function Client(client) {
-  this.client = client || null;
-}
-
-// 查看文件信息
-Client.prototype.stat = function(bucket, key, onret) {}
-// 删除文件
-Client.prototype.remove = function(bucket, key, onret) {}
-// 移动文件
-Client.prototype.move = function(bucketSrc, keySrc, bucketDest, keyDest, onret) {}
-// 复制文件
-Client.prototype.copy = function(bucketSrc, keySrc, bucketDest, keyDest, onret) {}
-
-// batch
-
-function EntryPath(bucket, key) {
-  this.bucket = bucket || null;
-  this.key = key || null;
-}
-
-function EntryPathPair(src, dest) {
-  this.src = src || null; 
-  this.dest = dest || null;
-}
-
-// 批量查看文件, entries 为 EntryPath 的数组
-Client.prototype.batchStat = function(entries, onret) {}
-// 批量删除文件, entries 为 EntryPath 的数组
-Client.prototype.batchDelete = function(entries, onret) {}
-// 批量移动文件, entries 为 EntryPathPair 的数组
-Client.prototype.batchMove = function(entries, onret) {}
-// 批量复制文件, entries 为 EntryPathPair 的数组
-Client.prototype.batchCopy = function(entries, onret) {}
+Batch.prototype.stat = function([key, ...], onret) {}
+Batch.prototype.copy = function([[src, dst],...], onret) {}
+Batch.prototype.move = function([[src, dst],...], onret) {}
+Batch.prototype.remove = function([key, ...], onret) {}
 ```
 
 范围：仅在服务端使用
@@ -90,30 +73,20 @@ Client.prototype.batchCopy = function(entries, onret) {}
 ## 上传/下载授权凭证（uptoken/dntoken）
 
 ```{js}
-
-function PutPolicy(scope, callbackUrl, callbackBody, returnUrl, returnBody,
-                  asyncOps, endUser, expires) {
-  this.scope = scope || null;
-  this.callbackUrl = callbackUrl || null;
-  this.callbackBody = callbackBody || null;
-  this.returnUrl = returnUrl || null;
-  this.returnBody = returnBody || null;
-  this.asyncOps = asyncOps || null;
-  this.endUser = endUser || null;
-  this.expires = expires || 3600;
+putPolicy = {
+	'callbackUrl': callbackUrl,
+	'callbackBody': callbackBody,
+	'returnUrl': returnUrl,
+	'returnBody': returnBody,
+	'asyncOps': asyncOps,
+	'endUser': endUser,
+	'expires': expires
 }
 
-// 生成上传的 token
-PutPolicy.prototype.token = function(mac) {}
-
-function GetPolicy(expires) {
-  this.expires = expires || 3600;
-}
-
-// 生成私有下载的 url
-GetPolicy.prototype.makeRequest = function(baseUrl, mac) {}
-
-function makeBaseUrl(domain, key) {}
+// bucket
+Bucket.prototype.uptoken = function(putPolicy)
+// bucket:key
+Key.prototype.uptoken = function(putPolicy)
 ```
 
 范围：仅在服务端使用
@@ -123,7 +96,7 @@ function makeBaseUrl(domain, key) {}
 
 ```{js}
 // 列出 prefix 前缀的文件
-exports.listPrefix = function(bucket, prefix, marker, limit, onret) {}
+Bucket.prototype.listPrefix = function(prefix, marker, limit, onret) {}
 ```
 
 范围：仅在服务端使用
@@ -132,30 +105,32 @@ exports.listPrefix = function(bucket, prefix, marker, limit, onret) {}
 ## 上传（io）
 
 ```{js}
-exports.PutExtra = PutExtra;
-exports.put = put;
-exports.putWithoutKey = putWithoutKey;
-exports.putFile = putFile;
-exports.putFileWithoutKey = putFileWithoutKey;
-
-function PutExtra(params, mimeType, crc32, checkCrc) {
-  this.paras = params || {};
-  this.mimeType = mimeType || null;
-  this.crc32 = crc32 || null;
-  this.checkCrc = checkCrc || 0;
+extra = {
+'params': {...},
+'mimeType': 'image/webp',
+'crc32': 'crc32 code',
+'checkCrc': 0 || 1 || 2
 		// checkCrc == 0: 表示不进行 crc32 校验
 		// checkCrc == 1: 对于 Put 等同于 checkCrc = 2；对于 PutFile 会自动计算 crc32 值
 		// checkCrc == 2: 表示进行 crc32 校验，且 crc32 值就是上面的 crc32 变量
 }
 
+// 可以指定2、3、4个参数
 // 从内存中上传文件
-function put(uptoken, key, body, extra, onret) {}
-// 从内存中上传文件，不指定key
-function putWithoutKey(uptoken, body, extra, onret) {}
+Key.prototype.put = function(body, extra, uptoken, onret) {} 
 // 根据文件名上传文件
-function putFile(uptoken, key, loadFile, extra, onret) {}
+Key.prototype.putFile = function(loadFile, extra, uptoken, onret) {}
 // 根据文件名上传文件，不指定key
-function putFileWithoutKey(uptoken, loadFile, extra, onret) {}
+
+
+Key.prototype.setToken = function(token) {}
+Key.prototype.setExtra = function(extra) {}
+
+read = createReadStream("xxx");
+read.pipe(key)
+
+// download, auto public or private
+Key.prototype.downloadUrl = function(expires) {}
 ```
 
 范围：客户端和服务端
@@ -163,32 +138,34 @@ function putFileWithoutKey(uptoken, loadFile, extra, onret) {}
 ## 数据处理API（fop）
 
 ```{js}
-exports.ImageView = ImageView;
-exports.ImageInfo = ImageInfo;
-exports.Exif = Exif;
-
 // imageView
 
-function ImageView(mode, width, height, quality, format) {
-  this.mode = mode || 1;         // 缩略模式
-  this.width = width || 0;       // Width = 0 表示不限定宽度
-  this.height = height || 0;     // Height = 0 表示不限定高度
-  this.quality = quality || 0;   // 质量, 1-100
-  this.format = format || null;  // 输出格式，如jpg, gif, png, tif等等
+imageView = {
+	'mode': mode,		// 缩略模式
+	'width': width,		// Width = 0 表示不限定宽度
+	'height': height,	// Height = 0 表示不限定高度
+	'quality': quality,	// 质量, 1-100
+	'format': format	// 输出格式，如jpg, gif, png, tif等等
 }
 
 // 生成缩略图的url
-ImageView.prototype.makeRequest = function(url) {}
+Key.prototype.imageViewUrl = function(imageView) {}
 
 // imageInfo
-function ImageInfo() {}
-
-// 生成imageInfo的url
-ImageInfo.prototype.makeRequest = function(url) {}
+Key.prototype.imageInfoUrl = function() {}
+Key.prototype.imageInfoCall = function() {}
 
 // exif
-function Exif() {}
+Key.prototype.exifUrl = function() {}
+Key.prototype.exifCall = function() {}
 
-// 生成exif的url
-Exif.prototype.makeRequest = function(url) {}
+// qrcode
+Key.prototype.qrcodeUrl = function() {}
+
+// imageMogr
+imageMogr = {
+	...
+}
+
+Key.prototype.imageMogrUrl = function(imageMogr) {}
 ```
