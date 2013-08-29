@@ -11,20 +11,20 @@
 ## 服务端配置（conf）
 
 ```{js}
-USER_AGENT = ''// 请求的 User-Agent 值，比如 'qiniu nodejs-sdk v7.0.0'
+var USER_AGENT = ''// 请求的 User-Agent 值，比如 'qiniu nodejs-sdk v7.0.0'
 
-UP_HOST = 'http://up.qiniu.com';
-RS_HOST = 'http://rs.qiniu.com';
-RSF_HOST = 'http://rsf.qiniu.com';
+var UP_HOST = 'http://up.qiniu.com';
+var RS_HOST = 'http://rs.qiniu.com';
+var RSF_HOST = 'http://rsf.qiniu.com';
 
-ACCESS_KEY = '<PLEASE APPLY YOUR ACCESS KEY>';
-SECRET_KEY = '<DONT SEND YOUR SECRET KEY TO ANYONE>';
+var ACCESS_KEY = '<PLEASE APPLY YOUR ACCESS KEY>';
+var SECRET_KEY = '<DONT SEND YOUR SECRET KEY TO ANYONE>';
 
 conf = {
 	'accessKey': accessKey,
 	'secretKey': secretKey
-}
-exports.SetConf(conf)
+};
+exports.SetConf(conf);
 ```
 
 范围：服务端和客户端共用
@@ -32,7 +32,7 @@ exports.SetConf(conf)
 ## bucket
 
 ```{js}
-exports.Bucket = Bucket
+exports.Bucket = Bucket;
 
 conf = {
 	...
@@ -59,7 +59,8 @@ Key.prototype.move = function(dstKey, onret) {}
 Key.prototype.copy = function(dstKey, onret) {}
 
 // conf 在操作非default accesskey时候用
-function Batch(conf) {}
+exports.Batch = Batch;
+Batch = function(conf) {}
 
 Batch.prototype.stat = function([key, ...], onret) {}
 Batch.prototype.copy = function([[src, dst],...], onret) {}
