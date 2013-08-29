@@ -369,7 +369,7 @@ func RputFileWithoutKey(
 
 ## 错误处理规范
 1. 原则上`err`不应当跨`package`直接传递，比如 `api/io.put`调用`rpc`包的某个函数产生错误，不应该直接`return err`，可以适当的封装点一些信息比如 `err = fmt.Errorf("rpc net %v",  err)`
-2. 在设当的层级可以对`err`隐藏隔离，定义具有自己意义的错误，而没必要一味的返回，比如`PutPolicy.Token`中的 `json.Unmarshal`时候可能遇到错误`json.InvalidUTF8Error`。`io.Put`通常也会遇到非`utf8 key`, key中包含`\n`等问题。这种情况可以统一定义个`EINVALIDKEY = errors.New("invalid key format")`。
+2. 在适当的层级可以对`err`隐藏隔离，定义具有自己意义的错误，而没必要一味的返回，比如`PutPolicy.Token`中的 `json.Unmarshal`时候可能遇到错误`json.InvalidUTF8Error`。`io.Put`通常也会遇到非`utf8 key`, key中包含`\n`等问题。这种情况可以统一定义个`EINVALIDKEY = errors.New("invalid key format")`。
 
 ## 单元测试规范
 1. 测试环境的初始化和清理工作应当看做单元测试的一部分。
