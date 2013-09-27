@@ -4,299 +4,291 @@
 
 ## 语言差异性
 
-- 命名风格：不同语言可以有不同的命名风格。本规范主要按类 Golang 风格进行描述（但不完全是）。
-- 名字空间：有的语言没有 package（namespace），通常通过名字前缀来表达。
-- 构造函数：有的语言没有构造函数，通过 NewXXX 函数来表达。本规范因为按 Golang 风格，构造函数也是用 NewXXX 进行描述。
-- 函数重载：有的语言没有函数重载，通过 XXXYYY 形式命名，其中 XXX 是功能，YYY 是不同重载函数的区分段。支持函数重载的语言没有 YYY 段。
-- 函数多返回值：有的语言不支持返回多个返回值，也不支持返回元组（tuple）。
-
+- 命名风格：变量命名用小驼峰法，如：`accessKey`
+- 名字空间：C中没有命名空间，用前缀区分，如：`Qiniu_`
+- 构造函数：通过 NewXXX 函数来表达。
 
 ## 服务端配置（conf）
 
-```{go}
-package "qiniu/api/conf"
+```{c}
+#include "conf.h"
 
-var USER_AGENT string // 请求的 User-Agent 值，比如 "qiniu php-sdk v6.0.0"
+const char* QINIU_ACCESS_KEY	= "<Please apply your access key>";
+const char* QINIU_SECRET_KEY	= "<Dont send your secret key to anyone>";
 
-var UP_HOST string
-var RS_HOST string
-var RSF_HOST string
+const char* QINIU_RS_HOST		= "http://rs.qiniu.com";
+const char* QINIU_UP_HOST		= "http://up.qiniu.com";
+const char* QINIU_RSF_HOST		= "http://rsf.qiniu.com";
 
-var ACCESS_KEY string
-var SECRET_KEY string // 不要在客户端初始化该变量
+const char* QINIU_USER_AGENT	= "" // 请求的 User-Agent 值，比如 "qiniu c-sdk v6.0.0"
 ```
 
 范围：服务端和客户端共用
 
-
 ## 签名认证（auth/digest）
 
-```{go}
-package "qiniu/api/auth/digest"
-
-type Mac struct {
-	AccessKey string
-	SecretKey []byte
-}
+```{c}
+typedef struct _Qiniu_Mac {
+	const char* accessKey;
+	const char* secretKey;
+} Qiniu_Mac;
 ```
 
 范围：仅在服务端使用
-
 
 ## 存储API（rs）
 
-```{go}
-package "qiniu/api/rs"
+```{c}
+// "rs.h"
 
-type Client struct {
-	...
-}
+typedef struct _Qiniu_RS_StatRet {
+	const char* hash;
+	const char* mimeType;
+	const char* endUser;
+	Qiniu_Int64 fsize;	
+	Qiniu_Int64 putTime;
+} Qiniu_RS_StatRet;
 
-func New(mac *digest.Mac = nil) Client
-
-func (this Client) Stat(bucket, key string) (entry Entry, err error)
-func (this Client) Delete(bucket, key string) (err error)
-func (this Client) Move(bucketSrc, keySrc, bucketDest, keyDest string) (err error)
-func (this Client) Copy(bucketSrc, keySrc, bucketDest, keyDest string) (err error)
-
-type Entry struct {
-	Hash     string
-	Fsize    int64
-	PutTime  int64
-	MimeType string
-	EndUser  string
-}
+// 获取文件信息
+Qiniu_Error Qiniu_RS_Stat(
+	Qiniu_Client* self, Qiniu_RS_StatRet* ret, const char* bucket, const char* key);
+// 删除文件
+Qiniu_Error Qiniu_RS_Delete(Qiniu_Client* self, const char* bucket, const char* key);
+// 移动文件
+Qiniu_Error Qiniu_RS_Move(Qiniu_Client* self, 
+        const char* tableNameSrc, const char* keySrc, 
+        const char* tableNameDest, const char* keyDest);
+// 复制文件
+Qiniu_Error Qiniu_RS_Copy(Qiniu_Client* self, 
+        const char* tableNameSrc, const char* keySrc, 
+        const char* tableNameDest, const char* keyDest);
 
 // batch
 
-type EntryPath struct {
-	Bucket string
-	Key string
-}
+typedef struct _Qiniu_RS_EntryPath {
+    const char* bucket;
+    const char* key;
+} Qiniu_RS_EntryPath;
 
-type EntryPathPair struct {
-	Src EntryPath
-	Dest EntryPath
-}
+typedef struct _Qiniu_RS_EntryPathPair {
+    Qiniu_RS_EntryPath src;
+    Qiniu_RS_EntryPath dest;
+} Qiniu_RS_EntryPathPair;
 
-type BatchItemRet struct {
-	Error string
-	Code  int
-}
+typedef struct _Qiniu_RS_BatchItemRet {
+    const char* error;
+    int code;
+}Qiniu_RS_BatchItemRet;
 
-type BatchStatItemRet struct {
-	Data  Entry
-	Error string
-	Code  int
-}
+typedef struct _Qiniu_RS_BatchStatRet {
+    Qiniu_RS_StatRet data;
+    const char* error;
+    int code;
+}Qiniu_RS_BatchStatRet;
 
-func (this Client) BatchStat(entries []EntryPath) (rets []BatchStatItemRet, err error)
-func (this Client) BatchDelete(entries []EntryPath) (rets []BatchItemRet, err error)
-func (this Client) BatchMove(entries []EntryPathPair) (rets []BatchItemRet, err error)
-func (this Client) BatchCopy(entries []EntryPathPair) (rets []BatchItemRet, err error)
+// 批量查看文件信息
+Qiniu_Error Qiniu_RS_BatchStat(
+        Qiniu_Client* self, Qiniu_RS_BatchStatRet* rets,
+        Qiniu_RS_EntryPath* entries, Qiniu_ItemCount entryCount);
+// 批量删除
+Qiniu_Error Qiniu_RS_BatchDelete(
+        Qiniu_Client* self, Qiniu_RS_BatchItemRet* rets,
+        Qiniu_RS_EntryPath* entries, Qiniu_ItemCount entryCount);
+// 批量移动
+Qiniu_Error Qiniu_RS_BatchMove(
+        Qiniu_Client* self, Qiniu_RS_BatchItemRet* rets,
+        Qiniu_RS_EntryPathPair* entryPairs, Qiniu_ItemCount entryCount);
+// 批量复制
+Qiniu_Error Qiniu_RS_BatchCopy(
+        Qiniu_Client* self, Qiniu_RS_BatchItemRet* rets,
+        Qiniu_RS_EntryPathPair* entryPairs, Qiniu_ItemCount entryCount);
 ```
 
 范围：仅在服务端使用
-
 
 ## 上传/下载授权凭证（uptoken/dntoken）
 
-```{go}
-package "qiniu/api/rs"
+```{c}
+// "rs.h"
+typedef struct _Qiniu_RS_PutPolicy {
+    const char* scope;        // 必选。可以是 bucketName 或者 bucketName:key
+    const char* callbackUrl;  // 可选
+    const char* callbackBody; // 可选
+    const char* returnUrl;    // 可选
+    const char* returnBody;   // 可选
+    const char* endUser;      // 可选
+    const char* asyncOps;     // 可选
+    Qiniu_Uint32 expires;     // 可选。默认 3600 秒
+} Qiniu_RS_PutPolicy;
 
-type PutPolicy struct {
-	Scope		 string // 必选。可以是 bucketName 或者 bucketName:key
-	CallbackUrl	 string // 可选
-	CallbackBody string // 可选
-	ReturnUrl	 string // 可选
-	ReturnBody	 string // 可选
-	AsyncOps	 string // 可选
-	EndUser		 string // 可选
-	Expires		 uint32 // 可选。默认是 3600 秒
-}
+// 获取上传token
+char* Qiniu_RS_PutPolicy_Token(Qiniu_RS_PutPolicy* policy, Qiniu_Mac* mac);
 
-func (this *PutPolicy) Token(mac *digest.Mac = nil) (uptoken string)
+typedef struct _Qiniu_RS_GetPolicy {
+    Qiniu_Uint32 expires;     // 可选。默认 3600 秒
+} Qiniu_RS_GetPolicy;
 
-type GetPolicy struct {
-	Expires		 uint32 // 可选。默认是 3600 秒
-}
-
-func (this GetPolicy) MakeRequest(baseUrl string, mac *digest.Mac = nil) (privateUrl string)
-
-func MakeBaseUrl(domain, key string) (baseUrl string)
+// 获取私有资源url
+char* Qiniu_RS_GetPolicy_MakeRequest(Qiniu_RS_GetPolicy* policy, const char* baseUrl, Qiniu_Mac* mac);
+// 获取escape转义的url
+char* Qiniu_RS_MakeBaseUrl(const char* domain, const char* key);
 ```
 
 范围：仅在服务端使用
-
 
 ## 存储高级API（rsf）
 
-```{go}
-package "qiniu/api/rsf"
+```{c}
+// "rsf.h"
 
-type Client struct {
-	...
-}
+Qiniu_Error Qiniu_RSF_ListPrefix(
+	Qiniu_Client* self, Qiniu_RSF_ListItem* ret, const char* bucket, const char* prefix,
+	const char* marker, int limit);
 
-func New(mac *digest.Mac = nil) Client
-
-func (this Client) ListPrefix(
-	bucket, prefix, marker string, limit int) (entries []ListItem, markerOut string, err error)
-
-type ListItem struct {
-	Key      string
-	Hash     string
-	Fsize    int64
-	PutTime  int64
-	MimeType string
-	EndUser  string
-}
+type struct _Qiniu_RSF_ListItem {
+	const char* key;
+	const char* hash;
+	const char* mimeType;
+	const char* endUser;
+	Qiniu_Uint64 fsize;
+	Qiniu_Uint64 putTime;
+} Qiniu_RSF_ListItem;
 ```
 
 范围：仅在服务端使用
 
-
 ## 上传（io）
 
-```{go}
-package "qiniu/api/io"
+```{c}
+// "io.h"
 
 // upload
 
-const UNDEFINED_KEY = "?"
+#ifndef QINIU_UNDEFINED_KEY
+#define QINIU_UNDEFINED_KEY NULL
+#endif
 
-type PutExtra struct {
-	Params		 map[string]string // 用户自定义参数，key必须以 "x:" 开头
-	MimeType	 string // 可选
-	Crc32		 uint32
-	CheckCrc	 uint32
-		// CheckCrc == 0: 表示不进行 crc32 校验
-		// CheckCrc == 1: 对于 Put 等同于 CheckCrc = 2；对于 PutFile 会自动计算 crc32 值
-		// CheckCrc == 2: 表示进行 crc32 校验，且 crc32 值就是上面的 Crc32 变量
-}
+typedef struct _Qiniu_Io_PutExtraParam {
+	const char* key;
+	const char* value;
+	struct _Qiniu_Io_PutExtraParam* next;
+} Qiniu_Io_PutExtraParam;
 
-type PutRet struct {
-	Hash    string // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
-	Key     string // 如果传入的 key == UNDEFINED_KEY，则服务端返回 key
-}
+typedef struct _Qiniu_Io_PutExtra {
+	Qiniu_Io_PutExtraParam* params; // 用户自定义参数，key必须以 "x:" 开头
+	const char* mimeType;  // 可选
+	Qiniu_Uint32 crc32;
+	Qiniu_Uint32 checkCrc32;
+		// checkCrc32 == 0: 表示不进行 crc32 校验
+		// checkCrc32 == 1: 对于 Put 等同于 checkCrc32 = 2；对于 PutFile 会自动计算 crc32 值
+		// checkCrc32 == 2: 表示进行 crc32 校验，且 crc32 值就是上面的 crc32 变量
+} Qiniu_Io_PutExtra;
 
-func Put(
-	ret interface{}, uptoken string, key string, body io.Reader, extra *PutExtra) (err error)
+typedef struct _Qiniu_Io_PutRet {
+	const char* hash; // hash 是对文件内容的hash值
+	const char* key;  // 如果传入的 key == UNDEFINED_KEY，则服务端返回 key = hash
+} Qiniu_Io_PutRet;
 
-func PutFile(
-	ret interface{}, uptoken string, key string, localFile string, extra *PutExtra) (err error)
+// 从内存中上传文件
+Qiniu_Error Qiniu_Io_PutBuffer(
+	Qiniu_Client* self, Qiniu_Io_PutRet* ret,
+	const char* uptoken, const char* key, const char* buf, size_t fsize, Qiniu_Io_PutExtra* extra);
+
+// 根据文件名上传文件
+Qiniu_Error Qiniu_Io_PutBuffer(
+	Qiniu_Client* self, Qiniu_Io_PutRet* ret,
+	const char* uptoken, const char* key, const char* buf, size_t fsize, Qiniu_Io_PutExtra* extra);
 ```
 
 范围：客户端和服务端
-
 
 ## 断点续上传（resumable io）
 
-```{go}
-package "qiniu/api/resumable/io"
+```{c}
+// “resumeable_io.h”
 
 // upload
 
-const UNDEFINED_KEY = "?"
+#ifndef QINIU_UNDEFINED_KEY
+#define QINIU_UNDEFINED_KEY NULL
+#endif
 
-type BlkputRet struct {
-	Ctx      string `json:"ctx"`
-	Checksum string `json:"checksum"`
-	Crc32    uint32 `json:"crc32"`
-	Offset   uint32 `json:"offset"`
-}
+typedef struct _Qiniu_Rio_BlkputRet {
+	const char* ctx;
+	const char* checksum;
+	Qiniu_Uint32 crc32;
+	Qiniu_Uint32 offset;
+	const char* host;
+} Qiniu_Rio_BlkputRet;
 
-type PutExtra struct {
-	Params		map[string]string // 用户自定义参数，key必须以 "x:" 开头
-	MimeType	string
-	ChunkSize	int		 // 可选。每次上传的Chunk大小
-	TryTimes	int		 // 可选。尝试次数
-	Progresses	[]BlkputRet // 可选。上传进度
-	Notify		func(blkIdx int, blkSize int, ret *BlkputRet) // 进度提示。注意blk是并行传输的
-	NotifyErr	func(blkIdx int, blkSize int, err error)
-}
+typedef struct _Qiniu_Rio_PutExtra {
+	const char* callbackParams;
+	const char* bucket;
+	const char* customMeta;
+	const char* mimeType;
+	int chunkSize;  // 可选。每次上传的Chunk大小
+	int tryTimes;   // 可选。上传进度
+	void* notifyRecvr;
+	Qiniu_Rio_FnNotify notify;  // 进度提示。注意blk是并行传输的
+	Qiniu_Rio_FnNotifyErr notifyErr;
+	Qiniu_Rio_BlkputRet* progresses;  // 可选。上传进度
+	size_t blockCnt;
+	Qiniu_Rio_ThreadModel threadModel;
+} Qiniu_Rio_PutExtra;
 
-type PutRet struct {
-	Hash    string // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
-	Key     string // 如果传入的 key == UNDEFINED_KEY，则服务端返回 key
-}
+typedef Qiniu_Io_PutRet Qiniu_Rio_PutRet;
 
-func Put(
-	ret interface{}, uptoken string,
-	key string, f io.ReaderAt, fsize int64, extra *PutExtra) (err error)
+Qiniu_Error Qiniu_Rio_Put(
+	Qiniu_Client* self, Qiniu_Rio_PutRet* ret,
+	const char* uptoken, const char* key, Qiniu_ReaderAt f, Qiniu_Int64 fsize, Qiniu_Rio_PutExtra* extra);
 
-func PutFile(
-	ret interface{}, uptoken string, key string, localFile string, extra *PutExtra) (err error)
+Qiniu_Error Qiniu_Rio_PutFile(
+	Qiniu_Client* self, Qiniu_Rio_PutRet* ret,
+	const char* uptoken, const char* key, const char* localFile, Qiniu_Rio_PutExtra* extra);
 
-func BlockCount(fsize int64) int
+int Qiniu_Rio_BlockCount(Qiniu_Int64 fsize);
 
 // global settings
 
-type Settings {
-	TaskQsize   int     // 可选。任务队列大小。为 0 表示取 Workers * 4。 
-	Workers     int     // 并行的工作线程数目。
-	ChunkSize	int		// 默认的Chunk大小，不设定则为256k
-	TryTimes	int		// 默认的尝试次数，不设定则为3
-}
+typedef struct _Qiniu_Rio_Settings {
+	int taskQsize;     // 可选。任务队列大小。为 0 表示取 Workers * 4。 
+	int workers;       // 并行的工作线程数目。
+	int chunkSize;     // 默认的Chunk大小，不设定则为256k
+	int tryTimes;      // 默认的尝试次数，不设定则为3
+	Qiniu_Rio_ThreadModel threadModel;
+} Qiniu_Rio_Settings;
 
-func SetSettings(settings *Settings)
+void Qiniu_Rio_SetSettings(Qiniu_Rio_Settings* v);
 ```
 
 范围：客户端和服务端
-
 
 ## 数据处理API（fop）
 
-```{go}
-package "qiniu/api/fop"
+```{c}
+// "fop.h"
 
 // imageView
+typedef struct _Qiniu_Fop_ImageView {
+    int mode;
+    int width;
+    int height;
+    int quality;
+    const char* format;
+} Qiniu_Fop_ImageView;
 
-type ImageView struct {
-	Mode int		// 缩略模式
-	Width int		// Width = 0 表示不限定宽度
-	Height int		// Height = 0 表示不限定高度
-	Quality int		// 质量, 1-100
-	Format string	// 输出格式，如jpg, gif, png, tif等等
-}
-
-func (this *ImageView) MakeRequest(url string) (imageViewUrl string)
-
-// imageMogr
-
-type ImageMogrify struct {
-	...				// 待标准化
-}
-
-func (this *ImageMogrify) MakeRequest(url string) (imageMogrUrl string)
+const char* Qiniu_Fop_ImageView_MakeRequest(Qiniu_Fop_ImageView* imageView, const char* url);
 
 // imageInfo
+typedef struct _Qiniu_Fop_ImageInfoRet {
+    int width;
+    int height;
+    const char* format;
+    const char* colorModel;
+} Qiniu_Fop_ImageInfoRet;
 
-type ImageInfoRet struct {
-	Width int
-	Height int
-	Format string
-	ColorModel string
-}
+Qiniu_Fop_ImageInfoRet* Qiniu_Fop_ImageInfo_Call(const char* url);
 
-type ImageInfo struct {}
-
-func (this ImageInfo) MakeRequest(url string) (imageInfoUrl string)
-func (this ImageInfo) Call(url string) (ret ImageInfoRet, err error)
-
-// exif
-
-type ExifValType struct {
-	Val string
-	Type int
-}
-
-type ExifRet map[string] ExifValType
-type Exif struct {}
-
-func (this Exif) MakeRequest(url string) (imageExifUrl string)
-func (this Exif) Call(url string) (ret ExifRet, err error)
 ```
 
 范围：客户端和服务端
-
