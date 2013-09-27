@@ -4,299 +4,251 @@
 
 ## 语言差异性
 
-- 命名风格：不同语言可以有不同的命名风格。本规范主要按类 Golang 风格进行描述（但不完全是）。
-- 名字空间：有的语言没有 package（namespace），通常通过名字前缀来表达。
-- 构造函数：有的语言没有构造函数，通过 NewXXX 函数来表达。本规范因为按 Golang 风格，构造函数也是用 NewXXX 进行描述。
-- 函数重载：有的语言没有函数重载，通过 XXXYYY 形式命名，其中 XXX 是功能，YYY 是不同重载函数的区分段。支持函数重载的语言没有 YYY 段。
-- 函数多返回值：有的语言不支持返回多个返回值，也不支持返回元组（tuple）。
-
+- 命名风格：本规范主要按类 Python 风格进行描述。
 
 ## 服务端配置（conf）
 
-```{go}
-package "qiniu/api/conf"
+```{python}
+ACCESS_KEY = "<Apply your access key here>"
+SECRET_KEY = "<Apply your secret key here>"
 
-var USER_AGENT string // 请求的 User-Agent 值，比如 "qiniu php-sdk v6.0.0"
+RS_HOST = "rs.qbox.me"
+RSF_HOST = "rsf.qbox.me"
+UP_HOST = "up.qiniu.com"
 
-var UP_HOST string
-var RS_HOST string
-var RSF_HOST string
-
-var ACCESS_KEY string
-var SECRET_KEY string // 不要在客户端初始化该变量
+USER_AGENT = "qiniu python-sdk v%s" % __version__
 ```
 
 范围：服务端和客户端共用
 
-
 ## 签名认证（auth/digest）
 
-```{go}
-package "qiniu/api/auth/digest"
+```{python}
+import auth.digest
 
-type Mac struct {
-	AccessKey string
-	SecretKey []byte
-}
+class Mac(object):
+	access = None
+	secret = None
+
+	def __init__(self, access=None, secret=None):
+		self.access = access
+		self.secret = secret
 ```
 
 范围：仅在服务端使用
 
+Bucket
+
+```{python}
+conf = {
+	"bucket": <bucket_name>,
+	"dn_host": <dn_host>,
+	"public": True|False
+}
+
+class Bucket(Object):
+	bucket_name = None
+	domain = None
+	public = None
+	
+	def __init__(self, conf=None):
+		if isinstance(conf, str):
+			self.bucket_name = conf
+		if isinstance(conf, dict):
+			self.bucket_name = conf["bucket"]
+			self.domain = conf"dn_host"]
+			self.public = conf["public"]
+	
+	def key(self, key):
+		return <Key>
+
+	def list_prefix(self, prefix, marker, limit):
+		return [{
+				"Key": <key>,
+				"Hash": <hash>,
+				"Fsize": <fsize>,
+				"PutTime": <putTime>,
+				"MimeType": <mimeType>,
+				"EndUser": <endUser>
+			}
+			...
+			]
+
+```
 
 ## 存储API（rs）
 
-```{go}
-package "qiniu/api/rs"
+```{python}
 
-type Client struct {
-	...
-}
+class Key(Object):
+	bucket_obj = None
+	key = None
 
-func New(mac *digest.Mac = nil) Client
+	def __init__(self, bucket_obj, key):
+		self.bucket_obj = bucket_obj
+		self.key = key
+		
+	def stat(self):
+		return (<Hash>, <Fsize>, <PutTime>, <MimeType>, <EndUser>)
+	def remove(self):
+		return err
+	def move(self, dst_key):
+		"""
+		@dst_key: dst_key is also a Key object, for example, Bucket("mybucket").key(["mykey"])
+		"""
+		return err
+	def copy(self, dst_key):
+		"""
+		@dst_key: dst_key is also a Key object, for example, Bucket("mybucket").key(["mykey"])
+		"""
+		return err
 
-func (this Client) Stat(bucket, key string) (entry Entry, err error)
-func (this Client) Delete(bucket, key string) (err error)
-func (this Client) Move(bucketSrc, keySrc, bucketDest, keyDest string) (err error)
-func (this Client) Copy(bucketSrc, keySrc, bucketDest, keyDest string) (err error)
+```
 
-type Entry struct {
-	Hash     string
-	Fsize    int64
-	PutTime  int64
-	MimeType string
-	EndUser  string
-}
+Batch Key operations
 
-// batch
+```{python}
 
-type EntryPath struct {
-	Bucket string
-	Key string
-}
+class Batch_Key(Object):
+	bucket_obj = None
+	key_list = None
 
-type EntryPathPair struct {
-	Src EntryPath
-	Dest EntryPath
-}
+	def __init__(self, bucket_obj, [key1, key2, ...]):
+		self.bucket_obj = bucket_obj
+		self.key_list = [key1, key2, ...]
 
-type BatchItemRet struct {
-	Error string
-	Code  int
-}
-
-type BatchStatItemRet struct {
-	Data  Entry
-	Error string
-	Code  int
-}
-
-func (this Client) BatchStat(entries []EntryPath) (rets []BatchStatItemRet, err error)
-func (this Client) BatchDelete(entries []EntryPath) (rets []BatchItemRet, err error)
-func (this Client) BatchMove(entries []EntryPathPair) (rets []BatchItemRet, err error)
-func (this Client) BatchCopy(entries []EntryPathPair) (rets []BatchItemRet, err error)
+	def stat(self):
+		return [{
+				"data":{"hash":<hash>, "fsize":<fsize>, "mimeType":<mimeType>, "endUser":<EndUser>},
+				"error":"err_string",
+				"code":<code>
+			},
+			...
+			]
+	def remove(self):
+		return [{"error":"err_string","code":<code>}...]
+	def move(self, dst_batch_key):
+		"""
+		@dst_batch_key: a Batch_Key object
+		"""
+		return [{"error":"err_string","code":<code>}...]
+	def copy(self, dst_batch_key):
+		"""
+		@dst_batch_key: a Batch_Key object
+		"""
+		return [{"error":"err_string","code":<code>}...]
 ```
 
 范围：仅在服务端使用
-
 
 ## 上传/下载授权凭证（uptoken/dntoken）
 
-```{go}
-package "qiniu/api/rs"
+```{python}
 
-type PutPolicy struct {
-	Scope		 string // 必选。可以是 bucketName 或者 bucketName:key
-	CallbackUrl	 string // 可选
-	CallbackBody string // 可选
-	ReturnUrl	 string // 可选
-	ReturnBody	 string // 可选
-	AsyncOps	 string // 可选
-	EndUser		 string // 可选
-	Expires		 uint32 // 可选。默认是 3600 秒
+put_policy = {
+	"CallbackUrl": <callbackurl>,
+	"CallbackBody: <callbackbody>,
+	"ReturnUrl": <returnurl>,
+	"ReturnBody": <returnbody>,
+	"AsyncOps": <asyncops>,
+	"EndUser": <enduser>,
+	"Expires": <expires>
 }
 
-func (this *PutPolicy) Token(mac *digest.Mac = nil) (uptoken string)
-
-type GetPolicy struct {
-	Expires		 uint32 // 可选。默认是 3600 秒
+get_policy = {
+	"Expires": <expires>
 }
 
-func (this GetPolicy) MakeRequest(baseUrl string, mac *digest.Mac = nil) (privateUrl string)
+class Bucket(Object):
 
-func MakeBaseUrl(domain, key string) (baseUrl string)
+	... <omit> ...
+
+	def uptoken(self, put_policy):
+		""" Up Token of scope <bucket> """
+		pass
+
+class Key(Object):
+
+	... <omit> ...
+		
+	def uptoken(self, put_policy):
+		""" uptoken of scope: <bucket>:<key> """
+		pass
+
+	def dntoken(self, get_policy): pass
+
+Bucket("foo").uptoken(put_policy)
+Bucket("foo").key("bar").uptoken(put_policy)
+Bucket("foo").key("bar").dntoken(get_policy)
+
 ```
-
 范围：仅在服务端使用
 
 
-## 存储高级API（rsf）
+## 上传/下载 (io)
 
-```{go}
-package "qiniu/api/rsf"
-
-type Client struct {
-	...
+```{python}
+extra = {
+    'params': {...},
+    'mimeType': <mimeType>,
+    'crc32': <crc32>,
+    'checkCrc': 0 || 1 || 2
+        // checkCrc == 0: 表示不进行 crc32 校验
+        // checkCrc == 1: 对于 Put 等同于 checkCrc = 2；对于 PutFile 会自动计算 crc32 值
+        // checkCrc == 2: 表示进行 crc32 校验，且 crc32 值就是上面的 crc32 变量
 }
 
-func New(mac *digest.Mac = nil) Client
+class Key(Object):
 
-func (this Client) ListPrefix(
-	bucket, prefix, marker string, limit int) (entries []ListItem, markerOut string, err error)
+	... <omit> ...
 
-type ListItem struct {
-	Key      string
-	Hash     string
-	Fsize    int64
-	PutTime  int64
-	MimeType string
-	EndUser  string
-}
+	def put(self, body, extra=None, uptoken=None): pass
+
+	def put_file(self, load_file, extra=None, uptoken=None): pass
+
+	def download_url(self, expires=3600): pass
+
+Bucket("foo").key("bar").put(body, extra, uptoken)
+Bucket("foo").key("bar").put(load_file, extra, uptoken)
+Bucket("foo").key("bar").download_url(expires)
 ```
 
-范围：仅在服务端使用
+数据处理API（fop）
 
-
-## 上传（io）
-
-```{go}
-package "qiniu/api/io"
-
-// upload
-
-const UNDEFINED_KEY = "?"
-
-type PutExtra struct {
-	Params		 map[string]string // 用户自定义参数，key必须以 "x:" 开头
-	MimeType	 string // 可选
-	Crc32		 uint32
-	CheckCrc	 uint32
-		// CheckCrc == 0: 表示不进行 crc32 校验
-		// CheckCrc == 1: 对于 Put 等同于 CheckCrc = 2；对于 PutFile 会自动计算 crc32 值
-		// CheckCrc == 2: 表示进行 crc32 校验，且 crc32 值就是上面的 Crc32 变量
-}
-
-type PutRet struct {
-	Hash    string // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
-	Key     string // 如果传入的 key == UNDEFINED_KEY，则服务端返回 key
-}
-
-func Put(
-	ret interface{}, uptoken string, key string, body io.Reader, extra *PutExtra) (err error)
-
-func PutFile(
-	ret interface{}, uptoken string, key string, localFile string, extra *PutExtra) (err error)
-```
-
-范围：客户端和服务端
-
-
-## 断点续上传（resumable io）
-
-```{go}
-package "qiniu/api/resumable/io"
-
-// upload
-
-const UNDEFINED_KEY = "?"
-
-type BlkputRet struct {
-	Ctx      string `json:"ctx"`
-	Checksum string `json:"checksum"`
-	Crc32    uint32 `json:"crc32"`
-	Offset   uint32 `json:"offset"`
-}
-
-type PutExtra struct {
-	Params		map[string]string // 用户自定义参数，key必须以 "x:" 开头
-	MimeType	string
-	ChunkSize	int		 // 可选。每次上传的Chunk大小
-	TryTimes	int		 // 可选。尝试次数
-	Progresses	[]BlkputRet // 可选。上传进度
-	Notify		func(blkIdx int, blkSize int, ret *BlkputRet) // 进度提示。注意blk是并行传输的
-	NotifyErr	func(blkIdx int, blkSize int, err error)
-}
-
-type PutRet struct {
-	Hash    string // 如果 uptoken 没有指定 ReturnBody，那么返回值是标准的 PutRet 结构
-	Key     string // 如果传入的 key == UNDEFINED_KEY，则服务端返回 key
-}
-
-func Put(
-	ret interface{}, uptoken string,
-	key string, f io.ReaderAt, fsize int64, extra *PutExtra) (err error)
-
-func PutFile(
-	ret interface{}, uptoken string, key string, localFile string, extra *PutExtra) (err error)
-
-func BlockCount(fsize int64) int
-
-// global settings
-
-type Settings {
-	TaskQsize   int     // 可选。任务队列大小。为 0 表示取 Workers * 4。 
-	Workers     int     // 并行的工作线程数目。
-	ChunkSize	int		// 默认的Chunk大小，不设定则为256k
-	TryTimes	int		// 默认的尝试次数，不设定则为3
-}
-
-func SetSettings(settings *Settings)
-```
-
-范围：客户端和服务端
-
-
-## 数据处理API（fop）
-
-```{go}
-package "qiniu/api/fop"
+```{python}
 
 // imageView
-
-type ImageView struct {
-	Mode int		// 缩略模式
-	Width int		// Width = 0 表示不限定宽度
-	Height int		// Height = 0 表示不限定高度
-	Quality int		// 质量, 1-100
-	Format string	// 输出格式，如jpg, gif, png, tif等等
+imageView = {
+    'mode': mode,       // 缩略模式
+    'width': width,     // Width = 0 表示不限定宽度
+    'height': height,   // Height = 0 表示不限定高度
+    'quality': quality, // 质量, 1-100
+    'format': format    // 输出格式，如jpg, gif, png, tif等等
 }
-
-func (this *ImageView) MakeRequest(url string) (imageViewUrl string)
 
 // imageMogr
-
-type ImageMogrify struct {
-	...				// 待标准化
+imageMogr = {
+    ...
 }
 
-func (this *ImageMogrify) MakeRequest(url string) (imageMogrUrl string)
+class Key(Object):
 
-// imageInfo
+	... <omit> ...
 
-type ImageInfoRet struct {
-	Width int
-	Height int
-	Format string
-	ColorModel string
-}
+	def image_info_url(self): pass
 
-type ImageInfo struct {}
+	def image_info_call(self, image_info_url=None): pass
 
-func (this ImageInfo) MakeRequest(url string) (imageInfoUrl string)
-func (this ImageInfo) Call(url string) (ret ImageInfoRet, err error)
+	def exif_url(self): pass
 
-// exif
+	def exif_call(self, exif_url=None): pass
 
-type ExifValType struct {
-	Val string
-	Type int
-}
+	def qrcode_url(self): pass
 
-type ExifRet map[string] ExifValType
-type Exif struct {}
+	def image_view_url(self, image_view): pass
 
-func (this Exif) MakeRequest(url string) (imageExifUrl string)
-func (this Exif) Call(url string) (ret ExifRet, err error)
+	def image_mogr_url(self, image_mogr): pass
+
+Bucket("foo").key("bar").image_view_url()
+Bucket("foo").key("bar").image_mogr_url()
 ```
-
-范围：客户端和服务端
-
